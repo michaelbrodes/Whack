@@ -1,0 +1,16 @@
+{
+    "name": "michaelbrodes/whack",
+    "description": "A whack-a-mole like game to make your typing faster",
+    "type": "project",
+    "require": {
+        "components/jquery": "^3.1",
+        "twbs/bootstrap": "^3.3"
+    },
+    "license": "GPL-3.0",
+    "authors": [
+        {
+            "name": "Michael Rhodes",
+            "email": "michaelleerhodes@gmail.com"
+        }
+    ]
+}

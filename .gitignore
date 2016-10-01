@@ -1,0 +1,9 @@
+# dependencies
+vendor/
+bower_components/
+
+# minified css
+assets/css/
+
+#phpstorm
+.idea/

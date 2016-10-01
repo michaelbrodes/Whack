@@ -1,0 +1,26 @@
+{
+  "name": "whack",
+  "authors": [
+    "Michael Rhodes <michaelleerhodes@gmail.com>"
+  ],
+  "description": "A whack-a-mole like game for faster typing",
+  "main": "index.php",
+  "keywords": [
+    "whack-a-mole",
+    "typing"
+  ],
+  "license": "GPL-3.0",
+  "homepage": "michaelrhodes.us",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "angular": "^1.5.8",
+    "angular-route": "^1.5.8"
+  }
+}

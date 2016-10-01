@@ -1,0 +1,21 @@
+@main-back: #f1f1f1;
+
+body {
+  background-color: @main-back;
+}
+
+div.main-panel {
+  width: 80%;
+  position: absolute;
+  margin: auto;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+}
+
+@media screen and (max-width: 720px) {
+  div.main-panel {
+    width: 100%;
+  }
+}
