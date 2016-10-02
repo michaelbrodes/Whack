@@ -17,12 +17,19 @@
           integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp"
           crossorigin="anonymous" />
 
-    <link rel="stylesheet" href="assets/css/site.css">
+    <link rel="stylesheet" href="assets/css/site.css" />
+    <!-- required for html5mode in /assets/js/whack.js -->
+    <!-- TODO: remove when switching to production environment -->
+    <base href="/~michael/whack/" />
 </head>
 <body ng-app="whack">
-<main id="site-content" ng-view>
-</main>
 
+<!-- rendered by /assets/js/whack.js/ -->
+<div class="panel main-panel panel-default">
+   <div class="panel-body">
+       <main id="site-content" ng-view></main>
+   </div>
+</div>
 <script src="vendor/components/jquery/jquery.min.js">
 </script>
 <script src="bower_components/angular/angular.min.js">

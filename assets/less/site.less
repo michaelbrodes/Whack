@@ -1,21 +1,92 @@
+@import url('https://fonts.googleapis.com/css?family=Pacifico');
 @main-back: #f1f1f1;
+@shadow-color: #EEEEEE;
+@font-color: #616161;
+@btn-color: #2196F3;
+
+/**
+ * Add the default 2 x 4 shadow.
+ */
+.shadow () {
+  -webkit-box-shadow: 2px 4px 2px @shadow-color;
+  -moz-box-shadow: 2px 4px 2px @shadow-color;
+  box-shadow: 2px 4px 2px @shadow-color;
+}
+
+/**
+ * set the border radius for all 4 sides to the @size param
+ */
+.radius ( @size ) {
+  -webkit-border-radius: @size;
+  -moz-border-radius: @size;
+  border-radius: @size;
+}
 
 body {
   background-color: @main-back;
+  color: @font-color;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
 }
 
 div.main-panel {
   width: 80%;
+  height: 500px;
   position: absolute;
   margin: auto;
   top: 0;
   left: 0;
   bottom: 0;
   right: 0;
+  .shadow();
+
+  div.panel-body {
+    position: absolute;
+    margin: auto;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 250px;
+    text-align: center;
+
+    h1 {
+      font-family: 'Pacifico', 'Brush Script MT', cursive;
+    } // h1
+  } // .panel-body
+} // main-panel
+
+ul.button-group {
+  list-style: none;
+
+  li {
+    background-color: @btn-color;
+    min-width: 100px;
+    max-width: 200px;
+    display: block;
+    margin: 1em auto;
+    .shadow();
+    .radius(2px);
+
+    a.button {
+      /* fill the container w/ link */
+      display: block;
+      width: 100%;
+      height: 100%;
+      /* end fill the container */
+      line-height: 2.5em;
+      color: whitesmoke;
+      text-transform: uppercase;
+      text-decoration: none;
+    }
+  }
+
 }
 
 @media screen and (max-width: 720px) {
   div.main-panel {
     width: 100%;
+    height: 100%;
   }
 }
