@@ -2,8 +2,11 @@
 vendor/
 bower_components/
 
+# site specific files
+www/
+
 # minified css
 assets/css/
 
-#phpstorm
+# phpstorm
 .idea/

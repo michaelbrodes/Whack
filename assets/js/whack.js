@@ -2,19 +2,8 @@
  * Created by michael on 9/30/16.
  */
 +function() { 'use strict';
-    var TEMPLATE_DIR = "assets/templates/";
-    var PROJECT_ROOT = "/~michael/whack/";
+    var TEMPLATE_DIR = "/assets/templates/";
     var whack = angular.module('whack', [ 'ngRoute' ]);
-
-    /**
-     * concat the relative path with the project route
-     *
-     * @param {string} relativePath - the relative path from project route
-     * @return {string} PROJECT_ROOT + relativePath
-     */
-    function route ( relativePath ) {
-        return PROJECT_ROOT + relativePath;
-    }
 
     /**
      * output the absolute path of the template
@@ -23,7 +12,7 @@
      * @return {string} - TEMPLATE_DIR + htmlFile + ".html"
      */
     function template ( htmlFile ) {
-        return PROJECT_ROOT + TEMPLATE_DIR + htmlFile + ".html";
+        return TEMPLATE_DIR + htmlFile + ".html";
     }
 
     whack.config(['$routeProvider', '$locationProvider',
