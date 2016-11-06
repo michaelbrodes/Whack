@@ -1,0 +1,18 @@
+/**
+ * Add the default 2 x 4 shadow.
+ */
+@mixin shadow () {
+  -webkit-box-shadow: 2px 4px 2px $shadow-color;
+  -moz-box-shadow: 2px 4px 2px $shadow-color;
+  box-shadow: 2px 4px 2px $shadow-color;
+}
+
+/**
+ * set the border radius for all 4 sides to the @size param
+ */
+@mixin radius( $size ) {
+  -webkit-border-radius: $size;
+  -moz-border-radius: $size;
+  border-radius: $size;
+}
+

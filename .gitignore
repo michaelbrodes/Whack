@@ -1,12 +1,12 @@
 # dependencies
-vendor/
+/vendor/
 bower_components/
-
-# site specific files
-www/
 
 # minified css
 assets/css/
 
 # phpstorm
 .idea/
+
+# site specific data
+www/
