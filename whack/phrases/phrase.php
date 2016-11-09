@@ -3,8 +3,8 @@
  *
  */
 namespace whack\phrases;
-require_once('../www/WhackDB.class.php');
-require("Phrase.class.php");
+require_once('../www/WhackDB.php');
+require("Phrase.php");
 
 use whack\data;
 use \PDO;

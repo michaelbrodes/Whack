@@ -1,9 +1,9 @@
 <?php
-require("../phrases/Phrase.class.php");
-require("../vendor/autoload.php");
-use \whack\phrases;
+require_once '../vendor/autoload.php';
+use PHPUnit\Framework\TestCase;
 use whack\data\WhackDB;
-use whack\phrases\Phrase;
+use whack\data\Phrase;
+use whack\data\Image;
 
 /**
  * Created by PhpStorm.
@@ -11,7 +11,7 @@ use whack\phrases\Phrase;
  * Date: 10/2/16
  * Time: 11:44 PM
  */
-class PhraseTest extends PHPUnit_Framework_TestCase
+class PhraseTest extends TestCase
 {
 //    public function testCorrectIdRange()
 //    {
@@ -37,32 +37,66 @@ class PhraseTest extends PHPUnit_Framework_TestCase
 //        $this->assertTrue(self::isJson($phrase), "No infinite loop, and is sending back json");
 //    }
 
-    public function testPhraseCreate()
+    public function testDatabaseSingleton()
     {
-        $ctor_args = array('id', 'statement', 'author', 'char_count', 'origin');
-        $db = WhackDB::getInstance()->getPDO();
-
-        # fetch q-tip's phrase from the database
-        $query = $db->query("SELECT * FROM Phrase WHERE id = 7");
-//        $q_tip = $query->fetchAll(PDO::FETCH_CLASS|PDO::FETCH_PROPS_LATE, Phrase::class, $ctor_args)[0];
-//        var_dump($q_tip);
-//
-//        # what 7 should be
-//        $q_tip_expected = new Phrase(
-//            7,
-//            "Shorty let me tell you about my only vice, It has to do with lots of loving and it ain't nothing nice",
-//            "Q-tip",
-//            101,
-//            "Electric Relaxation"
-//        );
-//
-//        $this->assertInstanceOf(Phrase::class, $q_tip);
-//        $this->assertEquals($q_tip_expected, $q_tip, "The q_tip's are not the same");
+        $database = WhackDB::getInstance();
+        $this->assertInstanceOf(WhackDB::class, $database, "returning a WhackDB object");
+        $pdo = $database->getPDO();
+        $this->assertInstanceOf(PDO::class, $pdo, "getPDO is returning a pdo before free");
+        $this->assertEquals($database->getPDO(), $pdo, "getPDO is returning a reference");
+        $database->freePDO($pdo);
+        $this->assertNull($pdo, '$pdo is null after freePDO');
+        $pdo = $database->getPDO();
+        $statement = $pdo->query("SELECT * FROM Phrase");
+        $this->assertInstanceOf(PDO::class, $pdo, "getPDO is returning a pdo after free");
+        $this->assertInstanceOf(PDOStatement::class, $statement);
+        $database->freePDO($pdo);
     }
 
-    public function testImageUpload()
+    public function testPhraseCreation() : Phrase
     {
+        $database = WhackDB::getInstance();
+        $pdo = $database->getPDO();
+        $statement = $pdo->query("SELECT * FROM Phrase WHERE id = 6");
+        $result = $statement->fetchAll(
+            PDO::FETCH_CLASS,
+            Phrase::class
+        );
 
+        foreach ( $result as $phrase )
+        {
+            $this->assertInstanceOf(Phrase::class, $phrase);
+            if (isset($phrase)) {
+                $this->assertTrue(is_string($phrase->getOrigin()));
+            }
+        }
+
+        return $result[0];
     }
+
+    /**
+     * @depends testPhraseCreation
+     * @param Phrase $phrase
+     */
+    public function testAssocImages(Phrase $phrase)
+    {
+        $assoc = $phrase->getAssocImages();
+
+        foreach( $assoc as $image )
+        {
+            $this->assertInstanceOf(
+                Image::class, $image,
+                "The example image isn't of type Image"
+            );
+        }
+    }
+
+//    /**
+//     * @depends testPhraseCreation
+//     * @param Phrase $phrase
+//     */
+//    public function testImageUpload(Phrase $phrase)
+//    {
+//    }
 
 }
