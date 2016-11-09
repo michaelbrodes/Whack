@@ -19,7 +19,8 @@ class WhackDB
     private $db = null;
     private $db_path;
     const PDO_OPTS = [
-        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
+        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_CLASS | PDO::FETCH_PROPS_LATE
     ];
 
     /**
@@ -27,7 +28,8 @@ class WhackDB
      */
     protected function __construct ()
     {
-        $this->db_path = getenv('DB');
+        // TODO: get from environment variable since this entry can vary
+        $this->db_path = "/home/michael/projects/Whack/www/whack.db";
         $this->db = $this->createPDO($this->db_path);
     }
 
@@ -35,7 +37,7 @@ class WhackDB
      * @param string $db_path
      * @return null|PDO - the connection to the database
      */
-    private function &createPDO( string $db_path )
+    private function &createPDO( string $db_path ) : PDO
     {
         $connection = null;
         try
@@ -69,7 +71,7 @@ class WhackDB
      *
      * @return WhackDB - the Single instance of WhackDB.
      */
-    public static function getInstance()
+    public static function getInstance() : WhackDB
     {
         if ( null === static::$_instance )
         {
@@ -85,7 +87,7 @@ class WhackDB
      *
      * @return PDO - the database connection
      */
-    public function &getPDO()
+    public function &getPDO() : PDO
     {
         # the pdo object has been instantiated and hasn't been freed
         if ($this->db === null)
@@ -97,9 +99,10 @@ class WhackDB
 
     /**
      * Frees the pdo object.
+     * @param PDO $pdo - the pdo object to free
      */
-    public function freePDO()
+    public function freePDO(PDO &$pdo)
     {
-        $this->db = null;
+        $pdo = null;
     }
 }

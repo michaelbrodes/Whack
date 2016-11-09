@@ -13,5 +13,10 @@
             "name": "Michael Rhodes",
             "email": "michaelleerhodes@gmail.com"
         }
-    ]
+    ],
+    "autoload": {
+        "psr-0": {
+            "whack\\": ""
+        }
+    }
 }
