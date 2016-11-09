@@ -129,7 +129,6 @@ class Phrase
         ));
 
         $this->assoc_images = $this->fetch_imgs();
-
         $this->db->freePDO($pdo);
         return $fail;
     }
