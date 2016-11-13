@@ -73,6 +73,15 @@ section#phrase-panel {
   font-size: 20px;
 }
 
+span.game-element {
+  margin-top: 0;
+  -webkit-transition: margin-top 500ms linear;
+  -moz-transition: margin-top 500ms linear;
+  -ms-transition: margin-top 500ms linear;
+  -o-transition: margin-top 500ms linear;
+  transition: margin-top 500ms linear;
+}
+
 span#success {
   color:$font-suc;
 }
@@ -81,10 +90,10 @@ span#fail {
   color:$font-fail;
 }
 
-span.game-element {
-  padding: 0;
-  margin: 0;
+span.shake {
+  margin-top: 50px;
 }
+
 
 @media screen and (max-width: 720px) {
   div.main-panel {

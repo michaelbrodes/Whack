@@ -21,35 +21,45 @@
      * @param $scope - the angular scope object
      */
     function registerPress( e, $scope ) {
-        // shorthand names
-        var phrase = $scope.phrase;
-        var suc = $scope.success;
-        var fail = $scope.failure;
         var inputChar = String.fromCharCode(e.which);
 
-        if ( phrase[0] === inputChar && fail.length === 0 )
+        if ( $scope.phrase[0] === inputChar && $scope.fail.length === 0 )
         {
-            // add the beginning of phrase to success' end.
-            suc = suc.concat(phrase[0]);
-            phrase = phrase.substr(1, phrase.length);
-            fail = "";
+            // add the beginning of phrase to suc' end.
+            $scope.suc = $scope.suc + $scope.phrase[0];
+            $scope.phrase = $scope.phrase.substr(1, $scope.phrase.length);
+            $scope.fail = "";
         }
-        else if ( inputChar === fail[0] )
+        else if ( inputChar === $scope.fail[0] && $scope.fail[0] !== "_" ||
+            ($scope.fail[0] === "_" && inputChar === " ") )
         {
-            // pop the failed character into the success string
-            suc = suc.concat(fail[0]);
-            fail = "";
+            // pop the failed character into the suc string
+            $scope.suc = ($scope.fail === "_")? $scope.suc + " " : $scope.suc + $scope.fail[0];
+            $scope.fail = "";
         }
-        else if ( fail.length === 0 )
+        else if ( $scope.fail.length === 0 )
         {
-            // take the end of phrase and append to fail
-            fail = fail.concat(phrase[0]);
-            phrase = phrase.substr(1, phrase.length);
+            // we can't color code space
+            $scope.fail = ($scope.phrase[0] === " ")? $scope.fail + "_": $scope.fail + $scope.phrase[0];
+            $scope.phrase = $scope.phrase.substr(1, $scope.phrase.length);
+            failShake();
+        }
+        else
+        {
+            failShake();
         }
 
-        $scope.phrase = phrase;
-        $scope.success = suc;
-        $scope.failure = fail;
+    }
+
+    /**
+     * Shakes the fail span for 500ms at a time
+     */
+    function failShake () {
+        angular.element("#fail").effect('shake', {
+            direction: 'up',
+            times: 2,
+            distance: 5
+        }, 100);
     }
 
     whack.config(['$routeProvider', '$locationProvider',
@@ -84,8 +94,8 @@
         $http, $scope, $location
     ){
         // initial DOM values
-        $scope.success = "";
-        $scope.failure = "";
+        $scope.suc = "";
+        $scope.fail = "";
         $scope.phrase = "Hello World";
 
         var $doc = angular.element(document);
@@ -96,13 +106,14 @@
                 registerPress(e, $scope);
             });
 
-            if (lengthToWin === $scope.success.length)
+            if (lengthToWin === $scope.suc.length)
             {
                 $scope.$apply(function () {
                     $location.path("/leaderboard");
                 });
             }
         });
+
     }]);
 
     whack.controller('leadController', ['$http', '$scope',
