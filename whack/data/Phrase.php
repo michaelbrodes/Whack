@@ -37,7 +37,7 @@ class Phrase
      * The id of the database entry
      * @return integer
      */
-    public function getId()
+    public function getId() : int
     {
         return $this->id;
     }
