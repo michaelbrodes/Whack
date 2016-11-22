@@ -32,7 +32,12 @@
      */
     FailBuffer.prototype.add = function ( phrase ) {
         if ( this.fail.length < 1 && phrase.statement.length > 0 ) {
-            this.fail = phrase.shift();
+            if ( phrase.statement[0] === " " ) {
+                this.fail = "_";
+                phrase.shift();
+            } else {
+                this.fail = phrase.shift();
+            }
         }
 
         this.shake();
@@ -46,7 +51,7 @@
         var toRemove = this.fail;
         this.fail = "";
 
-        return toRemove;
+        return (toRemove === "_")? " " : toRemove;
     };
     /**
      * Whether the buffer is full
@@ -58,11 +63,17 @@
 
     /**
      * checks if the character in the buffer is equal to the one found in the
-     * keypress event
+     * keypress event.
      *
      */
     FailBuffer.prototype.checkChar = function( event ) {
-        return event.charCode === this.fail.charCodeAt(0);
+        // charcode for space
+        var space = 32;
+        var isSpace = event.charCode === space && this.fail === "_";
+        var isSame = event.charCode === this.fail.charCodeAt(0) &&
+            this.fail !== "_";
+
+        return isSpace || isSame;
     };
 
     /**
@@ -102,7 +113,8 @@
 
     }]);
 
-    whack.factory('PhraseGame', ['$http', function ($http) {
+    whack.factory('PhraseGame', ['$http', '$location',
+        function ($http, $location) {
         /**
          * Angular Service representing a phrase object from the backend.
          * @constructor
@@ -116,7 +128,9 @@
             // -1 for a the check of whether the complete buffer is equal to the
             // length of the phrase buffer.
             this.length = -1;
-            this.timer = 0;
+            this.startTime = 0;
+            this.characters = 0;
+            this.finalWPM = 0;
         }
 
         /**
@@ -148,14 +162,15 @@
 
         /**
          * Initializes the game by setting all the phrase DOM elements to the
-         * values from a backend Phrase object, and it starts the timer.
+         * values from a backend Phrase object.
          */
         PhraseGame.prototype.start = function () {
             var self = this;
             $http.get('/whack/phrases/get_phrase.php').then(function successCallback(res) {
 
                 self.registerGameParams(res.data);
-                self.timer = Date.now();
+                self.startTime = Date.now()/1000;
+                self.characters = 0;
                 self.length = self.statement.length;
 
             }, function errorCallback(res) {
@@ -172,8 +187,6 @@
          * @returns {boolean}
          */
         PhraseGame.prototype.checkChar = function( event ) {
-            console.log(event.charCode);
-            console.log(this.statement.charCodeAt(0));
             return event.charCode === this.statement.charCodeAt(0);
         };
 
@@ -200,6 +213,36 @@
             this.statement = parts.join('');
         };
 
+        /**
+         * Checks if the complete string from the scope is of the same length as
+         * this phrase's length. If it is calculate the finish and redirect to
+         * the leader board.
+         *
+         * @param {string} complete
+         */
+        PhraseGame.prototype.checkCompletetion = function(complete) {
+            if ( complete.length === this.length ) {
+                this.finalWPM = this.wpm();
+                $location.path('/leaderboard');
+            }
+        };
+
+            /**
+             * Calculates the total wpm from the time of the first press to now.
+             * A word in this case would be considered every 5 characters.
+             *
+             * @returns {number} - the total wpm
+             */
+        PhraseGame.prototype.wpm = function () {
+            // Date.now returns milliseconds so we need to convert to seconds
+            var time = Date.now()/1000;
+            // total time elasped in seconds
+            var diff = Math.abs(time - this.startTime);
+
+            // for every five characters calculate the words per minute
+            return (this.characters/7)/(diff/60);
+        };
+
         return new PhraseGame();
     }]);
 
@@ -209,27 +252,40 @@
     }]);
 
     whack.controller('gameController',
-        ['$scope', '$location', '$log', '$document', 'PhraseGame',
-            function( $scope, $location, $log, $document, PhraseGame ){
+        ['$scope', '$log', '$document', 'PhraseGame',
+            function( $scope, $log, $document, PhraseGame ){
         // initial DOM value
         $scope.phrase = PhraseGame;
         $scope.failBuffer = new FailBuffer();
+        $scope.complete = "";
+        $scope.wpm = 0;
         PhraseGame.start();
 
-
         $document.keypress(function (event) {
+
             $scope.$apply(function () {
+                // if the characters match and we are not in a failing state
                 if ( PhraseGame.checkChar(event) &&
                     !$scope.failBuffer.isFailing() ) {
-                    PhraseGame.shift();
+                    // just add to the complete string
+                    PhraseGame.characters++;
+                    $scope.complete += PhraseGame.shift();
                 }
+                // if we are in a failing state, but are character matches the
+                // failed character
                 else if ( $scope.failBuffer.isFailing() &&
                     $scope.failBuffer.checkChar(event)) {
                     PhraseGame.unshift($scope.failBuffer.remove());
+                    PhraseGame.characters++;
+                    $scope.complete += PhraseGame.shift();
                 }
+                // otherwise we failed.
                 else {
                     $scope.failBuffer.add(PhraseGame);
                 }
+
+                $scope.wpm = PhraseGame.wpm();
+                PhraseGame.checkCompletetion($scope.complete);
             });
         });
 

@@ -94,20 +94,39 @@ span.shake {
   margin-top: 50px;
 }
 
+div.asides {
+  margin-top: 10px;
+}
+
 aside#phrase-info {
+  display: inline;
   font-style: italic;
   color: $subtitle-color;
   text-align: right;
   margin: {
-    top: 10px;
     left: 10%;
     right: 10%;
   };
 
-  img {
-    float: left;
-    max-width: 10%;
-    border: 5px solid $font-color;
+}
+
+img {
+  float: right;
+  max-width: 40px;
+  border: 5px solid $font-color;
+  margin: {
+    left: 10%;
+    right: 10%;
+  }
+}
+
+aside#wpm {
+  display: inline;
+  float: left;
+  font-weight: bold;
+  margin: {
+    left: 10%;
+    right: 10%;
   }
 }
 
