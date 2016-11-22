@@ -12,8 +12,14 @@
         return TEMPLATE_DIR + htmlFile + ".html";
     }
 
+    /**
+     * A Single character buffer to check whether a person failed the recent
+     * character in the game
+     * @constructor
+     */
     function FailBuffer () {
         this.fail = "";
+        // TODO: get apache to make this thing work
         this.buzzer = angular.element("#buzzer");
     }
 
@@ -23,16 +29,45 @@
      * adding it deletes 1 character off the statement attribute of PhraseGame
      *
      * @param {PhraseGame} phrase
-     * @param $scope
      */
-    FailBuffer.prototype.add = function ( phrase, $scope ) {
+    FailBuffer.prototype.add = function ( phrase ) {
         if ( this.fail.length < 1 && phrase.statement.length > 0 ) {
             this.fail = phrase.shift();
         }
 
-        $scope.fail = this.fail;
+        this.shake();
     };
 
+    /**
+     * Removes the character from the buffer and returns it
+     * @returns {string} the character we just removed
+     */
+    FailBuffer.prototype.remove = function () {
+        var toRemove = this.fail;
+        this.fail = "";
+
+        return toRemove;
+    };
+    /**
+     * Whether the buffer is full
+     * @returns {boolean}
+     */
+    FailBuffer.prototype.isFailing = function () {
+        return this.fail.length === 1;
+    };
+
+    /**
+     * checks if the character in the buffer is equal to the one found in the
+     * keypress event
+     *
+     */
+    FailBuffer.prototype.checkChar = function( event ) {
+        return event.charCode === this.fail.charCodeAt(0);
+    };
+
+    /**
+     * Shakes the text that represents the FailBuffer in the DOM
+     */
     FailBuffer.prototype.shake = function () {
         angular.element("#fail").effect("shake", {
             direction: "up",
@@ -114,17 +149,14 @@
         /**
          * Initializes the game by setting all the phrase DOM elements to the
          * values from a backend Phrase object, and it starts the timer.
-         *
-         * @param $scope: the scope of a controller
          */
-        PhraseGame.prototype.start = function ( $scope ) {
+        PhraseGame.prototype.start = function () {
             var self = this;
             $http.get('/whack/phrases/get_phrase.php').then(function successCallback(res) {
 
                 self.registerGameParams(res.data);
                 self.timer = Date.now();
                 self.length = self.statement.length;
-                $scope.phrase = self.getGameParams();
 
             }, function errorCallback(res) {
 
@@ -134,15 +166,27 @@
         };
 
         /**
+         * Checks whether the character code of a keypress event is equal to the
+         * character code of the first character in the PhraseGame object
+         * @param event
+         * @returns {boolean}
+         */
+        PhraseGame.prototype.checkChar = function( event ) {
+            console.log(event.charCode);
+            console.log(this.statement.charCodeAt(0));
+            return event.charCode === this.statement.charCodeAt(0);
+        };
+
+        /**
          * Shifts one character off the statement string.
          *
          * @return {String} the first character from statement
          */
         PhraseGame.prototype.shift = function () {
             // splits the statement into an array of individual characters
-            var parts = this.statement.split();
+            var parts = this.statement.split('');
             var char = parts.shift();
-            this.statement = parts;
+            this.statement = parts.join("");
 
             return char;
         };
@@ -151,7 +195,9 @@
          * Adds one character back onto the string.
          */
         PhraseGame.prototype.unshift = function (character) {
-
+            var parts = this.statement.split('');
+            parts.unshift(character);
+            this.statement = parts.join('');
         };
 
         return new PhraseGame();
@@ -166,12 +212,25 @@
         ['$scope', '$location', '$log', '$document', 'PhraseGame',
             function( $scope, $location, $log, $document, PhraseGame ){
         // initial DOM value
-        $scope.phrase = PhraseGame.getGameParams();
+        $scope.phrase = PhraseGame;
         $scope.failBuffer = new FailBuffer();
-        PhraseGame.start($scope);
+        PhraseGame.start();
 
 
-        $document.keypress(function (charCode) {
+        $document.keypress(function (event) {
+            $scope.$apply(function () {
+                if ( PhraseGame.checkChar(event) &&
+                    !$scope.failBuffer.isFailing() ) {
+                    PhraseGame.shift();
+                }
+                else if ( $scope.failBuffer.isFailing() &&
+                    $scope.failBuffer.checkChar(event)) {
+                    PhraseGame.unshift($scope.failBuffer.remove());
+                }
+                else {
+                    $scope.failBuffer.add(PhraseGame);
+                }
+            });
         });
 
     }]);
