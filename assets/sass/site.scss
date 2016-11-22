@@ -31,7 +31,7 @@ div.main-panel {
     left: 0;
     right: 0;
     bottom: 0;
-    height: 250px;
+    height: 400px;
     text-align: center;
 
     h1 {
@@ -94,6 +94,22 @@ span.shake {
   margin-top: 50px;
 }
 
+aside#phrase-info {
+  font-style: italic;
+  color: $subtitle-color;
+  text-align: right;
+  margin: {
+    top: 10px;
+    left: 10%;
+    right: 10%;
+  };
+
+  img {
+    float: left;
+    max-width: 10%;
+    border: 5px solid $font-color;
+  }
+}
 
 @media screen and (max-width: 720px) {
   div.main-panel {

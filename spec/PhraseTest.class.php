@@ -95,7 +95,7 @@ class PhraseTest extends TestCase
 //     * @depends testPhraseCreation
 //     * @param Phrase $phrase
 //     */
-//    public function testImageUpload(Phrase $phrase)
+//    public function testImageUpload(PhraseGame $phrase)
 //    {
 //    }
 

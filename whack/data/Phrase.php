@@ -10,7 +10,7 @@ namespace whack\data;
 use \PDO;
 
 /**
- * Class Phrase
+ * Class PhraseGame
  *
  * Represents a phrase from the database.
  */
@@ -134,7 +134,7 @@ class Phrase
     }
 
     /**
-     * Looks into the whack database for the image associated with this Phrase
+     * Looks into the whack database for the image associated with this PhraseGame
      *
      * @return array - the image(s) associated with this phrase (instantiated
      *                 as Image objects)

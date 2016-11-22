@@ -1,9 +1,11 @@
 <section id="phrase-panel">
 
     <!--HACK: need to remove unwanted space-->
-    <span class="game-element" id="success">{{suc}}</span><!--
-    --><span class="game-element" id="fail">{{fail}}</span><!--
-    --><span class="game-element" id="phrase">{{phrase}}</span>
+    <span class="game-element" id="fail" ng-bind="failBuffer.fail"></span><!--
+    --><span class="game-element" id="phrase" ng-bind="phrase.statement"></span>
+
+    <audio src="/assets/audio/buzzer.wav" id="buzzer"></audio>
+
 </section>
 <canvas id="keyboard">
 

@@ -2,8 +2,9 @@
 /vendor/
 bower_components/
 
-# minified css
+# minified css and audio
 assets/css/
+assets/audio/
 
 # phpstorm
 .idea/

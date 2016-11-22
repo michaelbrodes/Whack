@@ -15,7 +15,7 @@ session_start();
 function phrase_to_array( Phrase $phrase ) : array
 {
     $image = isset($phrase->getAssocImages()[0])?
-        $phrase->getAssocImages()[0]: null;
+        $phrase->getAssocImages()[0]->getImagePath(): null;
 
     $phrase_array = [
         "statement" => $phrase->getStatement(),
