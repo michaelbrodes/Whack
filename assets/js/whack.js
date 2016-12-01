@@ -13,6 +13,10 @@
     }
 
     /**
+     * The keyboard generated in the view
+     */
+
+    /**
      * A Single character buffer to check whether a person failed the recent
      * character in the game
      * @constructor

@@ -18,6 +18,12 @@
 
     <img ng-show="phrase.imagePath" ng-src="{{phrase.imagePath}}" />
 </section>
-<canvas id="keyboard">
-
-</canvas>
+<section class="keyboard">
+    <!-- TODO: repeat for the alphabet object. -->
+    <span class="key" ng-repeat="false">
+        <img ng-src="false" ng-if="false"/>
+        <button disabled ng-show="true">
+            <!-- the character for the keyboard -->
+        </button>
+    </span>
+</section>

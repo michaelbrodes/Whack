@@ -1,9 +1,11 @@
 <?php
 require_once '../vendor/autoload.php';
+require_once '../whack/phrases/get_keyboard.php';
 use PHPUnit\Framework\TestCase;
 use whack\data\WhackDB;
 use whack\data\Phrase;
 use whack\data\Image;
+use whack\phrases;
 
 /**
  * Created by PhpStorm.
@@ -89,6 +91,20 @@ class PhraseTest extends TestCase
                 "The example image isn't of type Image"
             );
         }
+    }
+
+    public function testGetKeyboard()
+    {
+        $current_ctry = phrases\grab_config('currentCountry');
+        $this->assertJson($current_ctry);
+        $this->assertEquals("us", json_decode($current_ctry));
+        $board_str = phrases\get_board();
+
+        $this->assertJson($board_str);
+        $board_arr = json_decode($board_str, true);
+
+        $this->assertNotNull($board_arr);
+        $this->assertContains("4^$", $board_arr[0]);
     }
 
 //    /**
