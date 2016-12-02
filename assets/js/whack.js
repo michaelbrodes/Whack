@@ -117,8 +117,25 @@
 
     }]);
 
-    whack.factory('PhraseGame', ['$http', '$location',
-        function ($http, $location) {
+    /**
+     * Filters out either the lowercase or uppercase portion of a key
+     */
+    whack.filter('case', function () {
+        return function (inKey, isUpper) {
+            var divider = /\^(.+)?/g;
+            if ( isUpper ) {
+                // the divider is a carrot character.
+                return inKey.split(divider)[1] || "";
+            }
+            else {
+                // the divider is a carrot character.
+                return inKey.split(divider)[0];
+            }
+        }
+    });
+
+    whack.factory('PhraseGame', ['$http', '$location', 'caseFilter',
+        function ($http, $location, caseFilter) {
         /**
          * Angular Service representing a phrase object from the backend.
          * @constructor
@@ -179,7 +196,7 @@
 
             }, function errorCallback(res) {
 
-                $log.error(res);
+                console.error(res);
 
             });
         };
@@ -247,6 +264,18 @@
             return (this.characters/7)/(diff/60);
         };
 
+        /**
+         * Tells whether the character in key is the first character in the
+         * phrase statement
+         * @param {string} key - a key from the view
+         * @returns {boolean}
+         */
+        PhraseGame.prototype.peek = function ( key ) {
+            return this.statement[0].toLowerCase() === caseFilter(key, false) ||
+                    this.statement[0] === caseFilter(key, true) ||
+                    (this.statement.charCodeAt(0) === 32 && key === "Space");
+        };
+
         return new PhraseGame();
     }]);
 
@@ -265,22 +294,6 @@
         });
     }]);
 
-    /**
-     * Filters out either the lowercase or uppercase portion of a key
-     */
-    whack.filter('case', function () {
-       return function (inKey, isUpper) {
-           var divider = /\^(.+)?/g;
-           if ( isUpper ) {
-               // the divider is a carrot character.
-               return inKey.split(divider)[1] || "";
-           }
-           else {
-               // the divider is a carrot character.
-               return inKey.split(divider)[0];
-           }
-       }
-    });
 
     whack.controller('mainController',
         ['Config', function ( Config ) {
@@ -328,8 +341,15 @@
 
     }]);
 
-    whack.controller('leadController', ['$http', '$scope', 'PhraseGame',
-        function( $http, $scope, PhraseGame ){
-
+    whack.controller('leadController', ['$http', '$scope', '$document',
+        '$location', 'PhraseGame',
+        function( $http, $scope, $document, $location, PhraseGame ){
+        $document.keypress(function ( event ) {
+            if (event.keyCode === 32) {
+                $scope.$apply(function () {
+                    $location.path('/play');
+                });
+            }
+        })
     }])
 }();

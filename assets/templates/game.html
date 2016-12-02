@@ -20,10 +20,18 @@
 </section>
 <section class="keyboard">
     <div class="key-row" ng-repeat="row in config.keyboard">
-        <span class="key" ng-repeat="key in row">
+        <span class="key"
+              ng-repeat="key in row"
+              ng-class="{'curr': phrase.peek(key)}"
+        >
             {{ key | case }}
             <sup>{{ key | case: true }}</sup>
         </span>
-
+    </div>
+    <div class="key-row">
+        <span class="key space"
+              ng-class="{'curr': phrase.peek('Space')}">
+            Space
+        </span>
     </div>
 </section>
