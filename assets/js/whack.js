@@ -250,20 +250,53 @@
         return new PhraseGame();
     }]);
 
-    whack.controller('mainController',
-        ['$scope', function ( $scope ) {
+    /**
+     * grabs the configuration of the user via external http requests
+     */
+    whack.service('Config', ['$http', '$log', function ($http) {
+        this.keyboard = [];
+        var self = this;
 
+        $http.get('/whack/phrases/get_keyboard.php').then(function success( res ) {
+            // two dimensional array showing the rows and keys of a keyboard
+            self.keyboard = res.data;
+        }, function fail( res ) {
+            $log.error(res);
+        });
+    }]);
+
+    /**
+     * Filters out either the lowercase or uppercase portion of a key
+     */
+    whack.filter('case', function () {
+       return function (inKey, isUpper) {
+           var divider = /\^(.+)?/g;
+           if ( isUpper ) {
+               // the divider is a carrot character.
+               return inKey.split(divider)[1] || "";
+           }
+           else {
+               // the divider is a carrot character.
+               return inKey.split(divider)[0];
+           }
+       }
+    });
+
+    whack.controller('mainController',
+        ['Config', function ( Config ) {
+        $scope.config = Config;
     }]);
 
     whack.controller('gameController',
-        ['$scope', '$log', '$document', 'PhraseGame',
-            function( $scope, $log, $document, PhraseGame ){
+        ['$scope', '$log', '$document', 'PhraseGame', 'Config',
+            function( $scope, $log, $document, PhraseGame, Config ){
         // initial DOM value
         $scope.phrase = PhraseGame;
         $scope.failBuffer = new FailBuffer();
         $scope.complete = "";
         $scope.wpm = 0;
         PhraseGame.start();
+        $scope.config = Config;
 
         $document.keypress(function (event) {
 

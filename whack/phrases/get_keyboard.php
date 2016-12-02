@@ -5,7 +5,7 @@
  * Date: 11/23/16
  */
 namespace whack\phrases;
-#require_once $_SERVER["DOCUMENT_ROOT"] . '/vendor/autoload.php';
+require_once $_SERVER["DOCUMENT_ROOT"] . '/vendor/autoload.php';
 
 /**
  * Grabs a certain configuration from the configuration file
@@ -14,7 +14,7 @@ namespace whack\phrases;
  */
 function grab_config( string $configuration ) : string
 {
-    $configPath = dirname(__FILE__) . "/../../conf/conf.json";
+    $configPath = $_SERVER["DOCUMENT_ROOT"] . "/conf/conf.json";
     $configFile = json_decode(file_get_contents($configPath), true);
     $configVal = "";
 
@@ -35,7 +35,7 @@ function grab_config( string $configuration ) : string
 function get_board( string $country = null ) : string
 {
     $countryJson = "";
-    $keyboardPath = dirname(__FILE__) . "/../../conf/keyboard/";
+    $keyboardPath = $_SERVER["DOCUMENT_ROOT"] . "/conf/keyboard/";
     $jsonPath = $keyboardPath . $country . ".json";
 
     if ( $country === null )
@@ -46,6 +46,7 @@ function get_board( string $country = null ) : string
     # grab json array of keyboard from configuration
     $keyboards = json_decode(grab_config("boards"), true);
 
+    # country is in keyboards and the file exists
     if ( array_key_exists($country, $keyboards) && file_exists($jsonPath) )
     {
         $countryJson = file_get_contents($jsonPath);
@@ -59,9 +60,9 @@ function get_board( string $country = null ) : string
     return $countryJson;
 }
 
-//if ( $_SERVER['REQUEST_METHOD'] === "GET" )
-//{
-//    header('Content-Type: application/json');
-//    json_encode(get_board());
-//}
+if ( $_SERVER['REQUEST_METHOD'] === "GET" )
+{
+    header('Content-Type: application/json');
+    echo get_board();
+}
 
