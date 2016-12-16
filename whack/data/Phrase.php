@@ -150,6 +150,13 @@ class Phrase
         $image_ids = $id_stmt->fetchAll();
         # A string with count($image_ids)'s worth of "?", All joined with a ","
         $sql_params = implode(",", array_fill(0, count($image_ids), "?"));
+
+        # if we are not getting anything then we can just not do any work
+        if ( empty($sql_params) )
+        {
+            return array();
+        }
+
         $image_sql = "SELECT * FROM Image WHERE id IN (". $sql_params." )";
         $img_stmt = $pdo->prepare($image_sql);
 

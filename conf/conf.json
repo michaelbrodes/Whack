@@ -2,5 +2,10 @@
   "currentCountry": "us",
   "boards": [
     "us"
-  ]
+  ],
+  "database": {
+    "host": "localhost",
+    "user": "root",
+    "password": ""
+  }
 }

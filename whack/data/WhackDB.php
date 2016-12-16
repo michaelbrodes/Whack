@@ -17,7 +17,9 @@ class WhackDB
     public static $phase_table = "Phrase";
     private static $_instance;
     private $db = null;
-    private $db_path;
+    private $user = "root";
+    private $pass = "";
+    private $host = "localhost";
     const PDO_OPTS = [
         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_CLASS | PDO::FETCH_PROPS_LATE
@@ -29,20 +31,37 @@ class WhackDB
     protected function __construct ()
     {
         // TODO: get from environment variable since this entry can vary
-        $this->db_path = "/home/michael/projects/Whack/www/whack.db";
-        $this->db = $this->createPDO($this->db_path);
+        $conf_path = $_SERVER['DOCUMENT_ROOT'] . "/conf/conf.json";
+        $db_vars = json_decode(file_get_contents($conf_path), true)['database'];
+
+        if ( !$db_vars )
+        {
+            echo "There was a problem opening the config file";
+            die();
+        }
+
+        $this->user = $db_vars['user'];
+        $this->pass = $db_vars['password'];
+        $this->host = $db_vars['host'];
+
+        $this->db = $this->createPDO();
     }
 
     /**
-     * @param string $db_path
      * @return null|PDO - the connection to the database
      */
-    private function &createPDO( string $db_path ) : PDO
+    private function &createPDO() : PDO
     {
         $connection = null;
+        $dsn = 'mysql:host=' . $this->host . ';dbname=whack';
         try
         {
-            $connection = new PDO('sqlite:' . $db_path);
+            $connection = new PDO(
+                $dsn,
+                $this->user,
+                $this->pass
+            );
+
             foreach ( static::PDO_OPTS as $attr => $option )
             {
                 $connection->setAttribute($attr, $option);
@@ -92,7 +111,7 @@ class WhackDB
         # the pdo object has been instantiated and hasn't been freed
         if ($this->db === null)
         {
-            $this->db = $this->createPDO($this->db_path);
+            $this->db = $this->createPDO();
         }
         return $this->db;
     }

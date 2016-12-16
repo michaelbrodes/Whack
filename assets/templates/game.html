@@ -5,8 +5,6 @@
     --><span class="game-element" id="fail" ng-bind="failBuffer.fail"></span><!--
     --><span class="game-element" id="phrase" ng-bind="phrase.statement"></span>
 
-    <audio src="/assets/audio/buzzer.wav" id="buzzer"></audio>
-
     <div class="asides">
         <aside id="phrase-info">
             {{phrase.author}} - {{phrase.origin}}
@@ -15,8 +13,6 @@
             WPM - {{wpm | number:3}}
         </aside>
     </div>
-
-    <img ng-show="phrase.imagePath" ng-src="{{phrase.imagePath}}" />
 </section>
 <section class="keyboard">
     <div class="key-row" ng-repeat="row in config.keyboard">

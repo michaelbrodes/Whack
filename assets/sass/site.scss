@@ -169,7 +169,7 @@ section.keyboard {
       }
 
       &.curr {
-        background-color: $font-fail;
+        background: url('/assets/images/mole.svg') no-repeat;
       }
 
       &.space {

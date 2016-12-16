@@ -35,8 +35,20 @@ function phrase_to_array( Phrase $phrase ) : array
 function get_phrase() : array
 {
     $exclude_ids = (isset($_SESSION['prev']))? $_SESSION['prev']: [];
-    $phrase_sql = "SELECT * FROM Phrase WHERE id NOT IN (".
-        implode($exclude_ids, ',').")";
+    $phrase_sql = "";
+
+    if ( empty($exclude_ids) )
+    {
+        # the sql statement in the else statement is invalid if sql_params is
+        # empty
+        $phrase_sql = "SELECT * FROM Phrase";
+    }
+    else
+    {
+        $phrase_sql = "SELECT * FROM Phrase WHERE id NOT IN (".
+            implode($exclude_ids, ',').")";
+    }
+
     $phrase_array = array();
 
     $db = WhackDB::getInstance();
@@ -48,7 +60,6 @@ function get_phrase() : array
 
     if ( count($fetched_phrases) > 0 )
     {
-        # pick random phrase from the result set
         $phrase = $fetched_phrases[array_rand($fetched_phrases)];
         $phrase_array = phrase_to_array($phrase);
         array_push($exclude_ids, $phrase->getId());

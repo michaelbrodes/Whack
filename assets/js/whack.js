@@ -24,7 +24,7 @@
     function FailBuffer () {
         this.fail = "";
         // TODO: get apache to make this thing work
-        this.buzzer = angular.element("#buzzer");
+        this.buzzer = new Audio('/assets/audio/buzzer.wav');
     }
 
     /**
@@ -84,6 +84,7 @@
      * Shakes the text that represents the FailBuffer in the DOM
      */
     FailBuffer.prototype.shake = function () {
+        this.buzzer.play();
         angular.element("#fail").effect("shake", {
             direction: "up",
             distance: 20,
@@ -261,7 +262,7 @@
             var diff = Math.abs(time - this.startTime);
 
             // for every five characters calculate the words per minute
-            return (this.characters/7)/(diff/60);
+            return (this.characters/5)/(diff/60);
         };
 
         /**
@@ -271,9 +272,11 @@
          * @returns {boolean}
          */
         PhraseGame.prototype.peek = function ( key ) {
-            return this.statement[0].toLowerCase() === caseFilter(key, false) ||
-                    this.statement[0] === caseFilter(key, true) ||
-                    (this.statement.charCodeAt(0) === 32 && key === "Space");
+
+            return this.statement !== "" &&
+                (this.statement[0].toLowerCase() === caseFilter(key, false) ||
+                this.statement[0] === caseFilter(key, true) ||
+                (this.statement.charCodeAt(0) === 32 && key === "Space"));
         };
 
         return new PhraseGame();
@@ -296,7 +299,7 @@
 
 
     whack.controller('mainController',
-        ['Config', function ( Config ) {
+        ['$scope', 'Config', function ( $scope, Config ) {
         $scope.config = Config;
     }]);
 
