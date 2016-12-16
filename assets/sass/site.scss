@@ -52,7 +52,10 @@ ul.button-group {
     @include shadow;
     @include radius(2px);
 
-    a.button {
+    .button {
+      /* remove <button> defaults */
+      background-color: $btn-color;
+      border-style: none;
       /* fill the container w/ link */
       display: block;
       width: 100%;

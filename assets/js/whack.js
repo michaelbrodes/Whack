@@ -297,10 +297,50 @@
         });
     }]);
 
+    /**
+     * The account of the current user.
+     */
+    whack.factory('Account', ['$http', function ( $http ) {
+        var INVALID_ID = -1;
+        /**
+         * Angular service with account capabilities brought from the backend
+         * @constructor
+         */
+        function Account () {
+            // initial values of attributes ( the user is not considered logged
+            // in)
+            this.logged = false;
+            // invalid database id
+            this.id = INVALID_ID;
+        }
+
+        /**
+         * Shows if the user is logged in or not
+         * @returns {boolean}
+         */
+        Account.prototype.isLogged = function () {
+            return this.logged;
+        };
+
+        /**
+         * Logs in the user with the specified username and password.
+         *
+         * @param {string} usr
+         * @param {string} pass
+         */
+        Account.prototype.login = function ( usr, pass ) {
+
+        };
+
+        return new Account();
+    }]);
+
 
     whack.controller('mainController',
-        ['$scope', 'Config', function ( $scope, Config ) {
+        ['$scope', 'Config', 'Account', function ( $scope, Config, Account ) {
         $scope.config = Config;
+        // to check if the user is logged on
+        $scope.account = Account;
     }]);
 
     whack.controller('gameController',
