@@ -332,6 +332,75 @@
 
         };
 
+        /**
+         * Tests whether the username has no spaces, has only unicode
+         * characters, and is no longer than 30 characters in length.
+         *
+         * @param {string} usr
+         * @returns {boolean}
+         */
+        Account.prototype.validName = function ( usr ) {
+            // right now I am only testing for spaces
+            var notUser = /\s/g;
+            // matches only valid utf8 bytes
+            var unicode = /^([\x00-\x7F]|([\xC2-\xDF]|\xE0[\xA0-\xBF]|\xED[\x80-\x9F]|(|[\xE1-\xEC]|[\xEE-\xEF]|\xF0[\x90-\xBF]|\xF4[\x80-\x8F]|[\xF1-\xF3][\x80-\xBF])[\x80-\xBF])[\x80-\xBF])*$/g;
+            // needs to be less than 30 bytes
+            var maxLength = 30;
+
+            return !notUser.test(usr) && unicode.test(usr) &&
+                usr.length <= maxLength;
+        };
+
+        /**
+         * Checks whether the the password is greater than or equal to 8
+         * characters in length and is valid unicode.
+         * @param {string} pass
+         * @returns {boolean}
+         */
+        Account.prototype.validPass = function ( pass ) {
+            var minLength = 8;
+            var unicode = /^([\x00-\x7F]|([\xC2-\xDF]|\xE0[\xA0-\xBF]|\xED[\x80-\x9F]|(|[\xE1-\xEC]|[\xEE-\xEF]|\xF0[\x90-\xBF]|\xF4[\x80-\x8F]|[\xF1-\xF3][\x80-\xBF])[\x80-\xBF])[\x80-\xBF])*$/g;
+
+            return pass.length >= 8 && unicode.test(pass);
+        };
+
+        /**
+         * produces error message based on how the user input is invalid
+         * @param {string} usr - the username provided by the user
+         * @param {string} pwd - the password provided by the user
+         */
+        Account.prototype.errMessage = function ( usr, pwd ) {
+            var maxPass = 8;
+            var maxUser = 30;
+            var message = "";
+
+            // don't annoy the user if their password is empty
+            if ( usr === '' && pwd === '')
+            {
+                return message;
+            }
+            else
+            {
+                // actual error checks
+                if ( pwd.length < maxPass )
+                {
+                    message += "Password needs to be more than 7 chars long. ";
+                }
+
+                if ( usr.length > maxUser )
+                {
+                    message += "User name needs to be less than 30 chars long. ";
+                }
+
+                if ( /\s/g.test(usr) )
+                {
+                    message += "There can be no spaces in your username. ";
+                }
+            }
+
+            return message;
+        };
+
         return new Account();
     }]);
 
@@ -341,6 +410,11 @@
         $scope.config = Config;
         // to check if the user is logged on
         $scope.account = Account;
+        // The credentials that the user is going to put into the log in form
+        $scope.userField = "";
+        $scope.passField = "";
+
+
     }]);
 
     whack.controller('gameController',
@@ -394,5 +468,5 @@
                 });
             }
         })
-    }])
+    }]);
 }();

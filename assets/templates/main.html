@@ -38,13 +38,37 @@
             <div class="modal-header">
                 Login
             </div>
-            <div class="modal-body">
-                <form action="/whack/account/login.php" class="login"></form>
-                <label for="user">Username</label>
-                <input id="user" name="user" type="text"/>
-                <label for="password">password</label>
-                <input id="password" name="user" type="text"/>
-            </div>
+            <form ng-submit="account.login(userField, passField)">
+                <div class="modal-body account-box">
+                    <div class="boxes">
+                        <label for="user">Username</label>
+                        <input id="user"
+                               name="user"
+                               type="text"
+                               ng-class="{'good': account.validName(userField) && userField !== '', 'bad': !account.validName(userField) && userField !== ''}"
+                               ng-model="userField"
+                        />
+                    </div>
+                    <div class="boxes">
+                        <label for="password">Password</label>
+                        <input id="password"
+                               name="password"
+                               type="password"
+                               ng-class="{'good': account.validPass(passField) && passField !== '', 'bad': !account.validPass(passField) && passField !== ''}"
+                               ng-model="passField"
+                        />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <span class="err">
+                        {{ account.errMessage(userField, passField); }}
+                    </span>
+                    <input type="submit"
+                           class="button"
+                           id="submit"
+                           ng-disabled="!account.validName(userField) || !account.validPass(passField) || userField === '' || passField === ''"/>
+                </div>
+            </form>
         </div>
     </div>
 </div>

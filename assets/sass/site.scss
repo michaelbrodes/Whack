@@ -37,6 +37,21 @@ div.main-panel {
     h1 {
       font-family: 'Pacifico', 'Brush Script MT', cursive;
     } // h1
+
+    noscript {
+      background-color: $font-fail;
+      display: block;
+      color: #FAFAFA;
+      @include radius(5px);
+      width: 100%;
+
+      a, a:hover {
+        text-decoration: underline;
+        color: #FAFAFA;
+        font-weight: bold;
+
+      }
+    }
   } // .panel-body
 } // main-panel
 
@@ -53,21 +68,28 @@ ul.button-group {
     @include radius(2px);
 
     .button {
-      /* remove <button> defaults */
-      background-color: $btn-color;
-      border-style: none;
       /* fill the container w/ link */
       display: block;
       width: 100%;
       height: 100%;
-      /* end fill the container */
-      line-height: 2.5em;
-      color: whitesmoke;
-      text-transform: uppercase;
-      text-decoration: none;
     }
   }
+}
 
+.button {
+  /* remove <button> defaults */
+  background-color: $btn-color;
+  border-style: none;
+  line-height: 2.5em;
+  color: whitesmoke;
+  text-transform: uppercase;
+  text-decoration: none;
+}
+
+.button:hover {
+  color: whitesmoke;
+  text-decoration: none;
+  background-color: darken($btn-color, 10%);
 }
 
 section#phrase-panel {
@@ -111,7 +133,6 @@ aside#phrase-info {
     left: 10%;
     right: 10%;
   };
-
 }
 
 img {
@@ -134,6 +155,50 @@ aside#wpm {
   }
 }
 
+div.account-box {
+  div.boxes {
+    input {
+      outline: none;
+      border: none;
+      border-bottom : {
+        width: 2px;
+        style: solid;
+        color: $bottom-border;
+        left-radius: 1px;
+        right-radius: 1px;
+      } // border-bottom
+
+      /* represents the bottom border of the text field */
+
+      &:focus {
+        border-bottom-color: $font-color;
+        transition: all 0.5s linear;
+      } // focus
+
+      &.bad {
+        border-bottom-color: $bottom-fail;
+      } // .bad
+
+      &.good {
+        border-bottom-color: $bottom-suc;
+      } // .good
+    } // input
+  } // .boxes
+} // .account-box
+
+input#submit {
+  @include shadow;
+}
+
+input#submit[disabled] {
+  background-color: #9E9E9E;
+}
+
+span.err {
+  float: left;
+  font-size: smaller;
+  color: $font-fail;
+}
 
 section.keyboard {
   margin-top: 3em;
@@ -160,7 +225,7 @@ section.keyboard {
         bottom: .5em;
       }
 
-      margin : {
+      margin: {
         left: 5px;
         right: 5px;
       }
@@ -177,11 +242,10 @@ section.keyboard {
 
       &.space {
         min-width: 25%;
-      }
-    }
-  }
-}
-
+      } // .space
+    } // .key
+  } // .key-row
+} // .keyboard
 
 @media screen and (max-width: 960px) {
   div.main-panel {
