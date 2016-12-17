@@ -52,7 +52,7 @@ class WhackDB
     private function &createPDO() : PDO
     {
         $connection = null;
-        $dsn = 'mysql:host=' . $this->host . ';dbname=whack;port=3306';
+        $dsn = 'mysql:host=' . $this->host . ';dbname=whack;port=3306;charset=utf8';
         try
         {
             $connection = new PDO(

@@ -147,9 +147,12 @@
             this.imagePath = "";
             this.author = "";
             this.origin = "";
+            // const that we check against length to know if our spinner should
+            // go
+            this.LOADING = -1;
             // -1 for a the check of whether the complete buffer is equal to the
             // length of the phrase buffer.
-            this.length = -1;
+            this.length = this.LOADING;
             this.startTime = 0;
             this.characters = 0;
             this.finalWPM = 0;
@@ -188,8 +191,9 @@
          */
         PhraseGame.prototype.start = function () {
             var self = this;
-            $http.get('/whack/phrases/get_phrase.php').then(function successCallback(res) {
+            self.length = self.LOADING;
 
+            $http.get('/whack/phrases/get_phrase.php').then(function successCallback(res) {
                 self.registerGameParams(res.data);
                 self.startTime = Date.now()/1000;
                 self.characters = 0;
