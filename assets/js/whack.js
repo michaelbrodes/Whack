@@ -316,6 +316,7 @@
             this.logged = false;
             // invalid database id
             this.id = INVALID_ID;
+            this.loading = false;
         }
 
         /**
@@ -333,7 +334,17 @@
          * @param {string} pass
          */
         Account.prototype.login = function ( usr, pass ) {
+            this.loading = true;
+        };
 
+        /**
+         * creates a user account using the backend
+         * @param usr
+         * @param pass
+         * @param nick
+         */
+        Account.prototype.create = function ( usr, pass, nick ) {
+            this.loading = true;
         };
 
         /**
@@ -372,11 +383,14 @@
          * produces error message based on how the user input is invalid
          * @param {string} usr - the username provided by the user
          * @param {string} pwd - the password provided by the user
+         * @param {string} [confPass] - optional param to be checked against pwd
          */
-        Account.prototype.errMessage = function ( usr, pwd ) {
+        Account.prototype.errMessage = function ( usr, pwd, confPass ) {
             var maxPass = 8;
             var maxUser = 30;
             var message = "";
+            // the default value of confPass is an empty string.
+            confPass = "" || confPass;
 
             // don't annoy the user if their password is empty
             if ( usr === '' && pwd === '')
@@ -400,6 +414,12 @@
                 {
                     message += "There can be no spaces in your username. ";
                 }
+
+                // if confPass is an empty string then we may be on log in.
+                if ( confPass !== pwd && confPass !== "" )
+                {
+                    message += "The password fields don't match."
+                }
             }
 
             return message;
@@ -417,8 +437,10 @@
         // The credentials that the user is going to put into the log in form
         $scope.userField = "";
         $scope.passField = "";
-
-
+        $scope.newPass = "";
+        $scope.newUser = "";
+        $scope.confPass = "";
+        $scope.nick = "";
     }]);
 
     whack.controller('gameController',

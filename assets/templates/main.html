@@ -24,9 +24,9 @@
         </button>
     </li>
     <li>
-        <a href="#/create" class="button">
+        <button class="button" data-toggle="modal" data-target="#create-modal">
             Create an Account
-        </a>
+        </button>
     </li>
 </ul>
 <div class="modal fade"
@@ -36,7 +36,7 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                Login
+                Create An Account
             </div>
             <form ng-submit="account.login(userField, passField)">
                 <div class="modal-body account-box">
@@ -64,9 +64,68 @@
                         {{ account.errMessage(userField, passField); }}
                     </span>
                     <input type="submit"
-                           class="button"
-                           id="submit"
+                           class="button btn-submit"
                            ng-disabled="!account.validName(userField) || !account.validPass(passField) || userField === '' || passField === ''"/>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<div class="modal fade"
+     id="create-modal"
+     tabindex="-1"
+     role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                Login
+            </div>
+            <form ng-submit="account.create(newUser, newPass, nick)">
+                <div class="modal-body account-box">
+                    <div class="boxes">
+                        <label for="nick">Nickname</label>
+                        <input id="nick"
+                               name="nick"
+                               type="text"
+                               ng-class="{'good': account.validPass(passField) && passField !== '', 'bad': !account.validPass(passField) && passField !== ''}"
+                               ng-model="nick"
+                        />
+                    </div>
+                    <div class="boxes">
+                        <label for="new-usr">Username</label>
+                        <input id="new-usr"
+                               name="new-usr"
+                               type="text"
+                               ng-class="{'good': account.validName(newUser) && newUser !== '', 'bad': !account.validName(newUser) && newUser !== ''}"
+                               ng-model="newUser"
+                        />
+                    </div>
+                    <div class="boxes">
+                        <label for="new-pass">Password</label>
+                        <input id="new-pass"
+                               name="new-pass"
+                               type="password"
+                               ng-class="{'good': account.validPass(newPass) && newPass !== '', 'bad': !account.validPass(newPass) && newPass !== ''}"
+                               ng-model="newPass"
+                        />
+                    </div>
+                    <div class="boxes">
+                        <label for="conf-pass">Confirm Password</label>
+                        <input id="conf-pass"
+                               name="conf"
+                               type="password"
+                               ng-class="{'good': confPass === newPass && confPass !== '', 'bad': newPass !== confPass}"
+                               ng-model="confPass"
+                        />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <span class="err">
+                        {{ account.errMessage(newUser, newPass, confPass); }}
+                    </span>
+                    <input type="submit"
+                           class="button btn-submit"
+                           ng-disabled="!account.validName(newUser) || !account.validPass(newPass) || newPass !== confPass || nick === '' || newUser === '' || newPass === ''"/>
                 </div>
             </form>
         </div>

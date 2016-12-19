@@ -157,7 +157,12 @@ aside#wpm {
 
 div.account-box {
   div.boxes {
+    label {
+      width: 20%;
+    } // label
+
     input {
+      text-align: center;
       outline: none;
       border: none;
       border-bottom : {
@@ -186,11 +191,11 @@ div.account-box {
   } // .boxes
 } // .account-box
 
-input#submit {
+input.button.btn-submit {
   @include shadow;
 }
 
-input#submit[disabled] {
+input.button.btn-submit[disabled] {
   background-color: #9E9E9E;
 }
 
