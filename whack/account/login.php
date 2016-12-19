@@ -10,4 +10,5 @@ namespace whack\account;
 if ( $_SERVER["REQUEST_METHOD"] !== "POST" )
 {
     header("Location: /#/error/");
+    die();
 }
