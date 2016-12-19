@@ -78,9 +78,15 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                Login
+                Create an Account
+                <button type="button"
+                        class="close"
+                        data-dismiss="modal"
+                        aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
             </div>
-            <form ng-submit="account.create(newUser, newPass, nick)">
+            <form ng-submit="account.create(newUser, newPass, confPass, nick)">
                 <div class="modal-body account-box">
                     <div class="boxes">
                         <label for="nick">Nickname</label>

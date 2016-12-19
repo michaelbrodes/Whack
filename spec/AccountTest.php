@@ -3,6 +3,7 @@ require_once '../vendor/autoload.php';
 use PHPUnit\Framework\TestCase;
 use whack\data\WhackDB;
 use whack\data\Account;
+use whack\management;
 
 /**
  * Created by PhpStorm.
@@ -12,15 +13,15 @@ use whack\data\Account;
  */
 class AccountTest extends PHPUnit_Framework_TestCase
 {
-//    public function testUserExistence()
-//    {
-//        $user1 = "michael";
-//        $doesExist = Account::check_existence($user1);
-//        $this->assertTrue($doesExist, $user1 . " does exist");
-//        $user2 = "zach";
-//        $doesExist = Account::check_existence($user2);
-//        $this->assertFalse($doesExist, $user2 . " doesn't exist");
-//    }
+    public function testUserExistence()
+    {
+        $user1 = "michael";
+        $doesExist = Account::check_existence($user1);
+        $this->assertTrue($doesExist, $user1 . " does exist");
+        $user2 = "zach";
+        $doesExist = Account::check_existence($user2);
+        $this->assertFalse($doesExist, $user2 . " doesn't exist");
+    }
 
     public function testCreate()
     {
@@ -58,5 +59,32 @@ class AccountTest extends PHPUnit_Framework_TestCase
         $this->assertTrue($password_works,
             "Checking if the inserted password can be verified.");
 
+    }
+
+    /**
+     * tests the create.php script to make sure that it is right
+     */
+    public function testCreatePHP ()
+    {
+        $validusr = "something";
+        $invalidusr = "no thing";
+
+        $isValid = \whack\management\checkname($validusr);
+        $this->assertTrue($isValid, "Testing valid username");
+
+        $isValid = \whack\management\checkname($invalidusr);
+        $this->assertFalse($invalidusr, "Testing invalid username");
+
+        $validpwd = "password";
+        $invalidpwd = " 1034";
+
+        $isValid = \whack\management\checkpass($invalidpwd, "password");
+        $this->assertFalse($isValid, "Testing invalid password");
+
+        $isValid = \whack\management\checkpass($validpwd, "password");
+        $this->assertTrue($isValid, "Testing valid password");
+
+        $isValid = \whack\management\checkpass($validpwd, "not password");
+        $this->assertFalse($isValid, "Testing valid password that doesn't match confirmation");
     }
 }

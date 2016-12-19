@@ -76,8 +76,7 @@ class Account
         $exist_stmt = $db->prepare($exist_sql);
         $exist_stmt->execute(array( ":username" => $usr ));
         $usr_matches = $exist_stmt->fetchAll(PDO::FETCH_ASSOC);
-        $exist = count($usr_matches) > 0;
 
-        return $exist;
+        return count($usr_matches) > 0;
     }
 }

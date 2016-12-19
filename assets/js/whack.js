@@ -302,12 +302,12 @@
     }]);
 
     /**
-     * The account of the current user.
+     * The management of the current user.
      */
-    whack.factory('Account', ['$http', function ( $http ) {
+    whack.factory('Account', ['$http', '$log', function ( $http, $log ) {
         var INVALID_ID = -1;
         /**
-         * Angular service with account capabilities brought from the backend
+         * Angular service with management capabilities brought from the backend
          * @constructor
          */
         function Account () {
@@ -338,13 +338,28 @@
         };
 
         /**
-         * creates a user account using the backend
+         * creates a user management using the backend
          * @param usr
          * @param pass
          * @param nick
          */
-        Account.prototype.create = function ( usr, pass, nick ) {
+        Account.prototype.create = function ( usr, pass, conf, nick ) {
             this.loading = true;
+            var self = this;
+
+            $http.post('/whack/management/create.php', {
+                "new-usr": usr,
+                "new-pass": pass,
+                nick: nick,
+                "conf-pass": conf
+            }).then(function success ( res ) {
+                self.id = res.data.id;
+                self.logged = true;
+                self.loading = false;
+                angular.element("#create-modal").modal("hide");
+            }, function fail ( res )  {
+                $log.error(res);
+            });
         };
 
         /**
