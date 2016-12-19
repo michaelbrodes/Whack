@@ -1,9 +1,15 @@
 <?php
 require_once '../vendor/autoload.php';
+require_once '../whack/management/create.php';
 use PHPUnit\Framework\TestCase;
 use whack\data\WhackDB;
 use whack\data\Account;
 use whack\management;
+
+function something ()
+{
+
+}
 
 /**
  * Created by PhpStorm.
@@ -69,22 +75,22 @@ class AccountTest extends PHPUnit_Framework_TestCase
         $validusr = "something";
         $invalidusr = "no thing";
 
-        $isValid = \whack\management\checkname($validusr);
+        $isValid = management\checkname($validusr);
         $this->assertTrue($isValid, "Testing valid username");
 
-        $isValid = \whack\management\checkname($invalidusr);
+        $isValid = management\checkname($invalidusr);
         $this->assertFalse($invalidusr, "Testing invalid username");
 
         $validpwd = "password";
         $invalidpwd = " 1034";
 
-        $isValid = \whack\management\checkpass($invalidpwd, "password");
+        $isValid = management\checkpass($invalidpwd, "password");
         $this->assertFalse($isValid, "Testing invalid password");
 
-        $isValid = \whack\management\checkpass($validpwd, "password");
+        $isValid = management\checkpass($validpwd, "password");
         $this->assertTrue($isValid, "Testing valid password");
 
-        $isValid = \whack\management\checkpass($validpwd, "not password");
+        $isValid = management\checkpass($validpwd, "not password");
         $this->assertFalse($isValid, "Testing valid password that doesn't match confirmation");
     }
 }

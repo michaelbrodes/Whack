@@ -13,6 +13,22 @@
     }
 
     /**
+     * Uses angular.element (alias to JQuery) to display information, that
+     * should only be displayed to users on, the navbar
+     * @param {string} nick - the user's nickname
+     */
+    function displayUserInfo ( nick ) {
+        angular.element("#create-modal").modal("hide");
+        angular.element("#leader > a").text("Leaderboard");
+        angular.element('#logout > a').text('Logout');
+        angular.element('#login > span.center').text("Hello " + nick);
+
+        angular.element('#links > li').each(function () {
+            angular.element(this).css('display', 'inline-block');
+        });
+    }
+
+    /**
      * The keyboard generated in the view
      */
 
@@ -316,6 +332,7 @@
             this.logged = false;
             // invalid database id
             this.id = INVALID_ID;
+            this.nick = "";
             this.loading = false;
         }
 
@@ -339,9 +356,10 @@
 
         /**
          * creates a user management using the backend
-         * @param usr
-         * @param pass
-         * @param nick
+         * @param usr - new username
+         * @param pass - new password
+         * @param conf - confirmation of that new password
+         * @param nick - nickname for the user
          */
         Account.prototype.create = function ( usr, pass, conf, nick ) {
             this.loading = true;
@@ -356,7 +374,9 @@
                 self.id = res.data.id;
                 self.logged = true;
                 self.loading = false;
-                angular.element("#create-modal").modal("hide");
+                self.nick = res.data.nick;
+
+                displayUserInfo(self.nick);
             }, function fail ( res )  {
                 $log.error(res);
             });
@@ -444,6 +464,11 @@
     }]);
 
 
+    /**
+     * The homepage of the application. It has a login form and a create an
+     * account form. If the user is already logged in (check via api call to the
+     * backend) then we display navigation of our site
+     */
     whack.controller('mainController',
         ['$scope', 'Config', 'Account', function ( $scope, Config, Account ) {
         $scope.config = Config;
@@ -458,6 +483,10 @@
         $scope.nick = "";
     }]);
 
+    /**
+     * The actual Whack game; it has a keyboard, a phrase to type, and other
+     * miscellaneous information about that phrase.
+     */
     whack.controller('gameController',
         ['$scope', '$log', '$document', 'PhraseGame', 'Config',
             function( $scope, $log, $document, PhraseGame, Config ){
@@ -499,6 +528,10 @@
 
     }]);
 
+    /**
+     * The Whack game's leaderboard. It will display the top ten scores of each
+     * user for that phrase, and have a readout for the phrase.
+     */
     whack.controller('leadController', ['$http', '$scope', '$document',
         '$location', 'PhraseGame',
         function( $http, $scope, $document, $location, PhraseGame ){
@@ -508,6 +541,27 @@
                     $location.path('/play');
                 });
             }
+        })
+    }]);
+
+    /**
+     * At the start of the application we need to check if the user is logged in
+     */
+    whack.run(['$http', 'Account', '$log', function ($http, Account, $log) {
+        Account.loading = true;
+        $http.get('/whack/management/islogged.php').then(function success( res ) {
+            if ( res.data.nick !== "" && res.data.id !== -1)
+            {
+                Account.nick    = res.data.nick;
+                Account.id      = res.data.id;
+                Account.logged  = true;
+
+                displayUserInfo(Account.nick);
+            }
+
+            Account.loading = false;
+        }, function fail ( res ) {
+            $log.error(res);
         })
     }]);
 }();

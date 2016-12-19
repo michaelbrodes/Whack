@@ -25,6 +25,33 @@ session_start();
     <base href="/" />
 </head>
 <body ng-app="whack">
+<nav class="navbar navbar-default">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed"
+                    data-toggle="collapse"
+                    data-target="#menu"
+                    aria-expanded="false">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#/">Whack</a>
+        </div>
+        <div class="collapse navbar-collapse" id="menu">
+            <ul class="nav navbar-nav navbar-right" id="links">
+                <li><a href="#/">Home</a></li>
+                <!-- these will be filled in dynamically when the user logs on -->
+                <li id="leader"><a href="#/leaderboard"></a></li>
+                <li role="separator" class="divider"></li>
+                <li class="vert-divide"><span class="center">|</span></li>
+                <li id="login"><span class="center"></span></li>
+                <li id="logout"><a href="#/logout"></a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
 <!-- rendered by /assets/js/whack.js/ -->
 <div class="panel main-panel panel-default">
    <div class="panel-body">

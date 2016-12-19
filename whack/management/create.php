@@ -104,5 +104,9 @@ if ( $new_account === null )
 
 # send back id as a handler for the management.
 $_SESSION['usr-id'] = $new_account->id;
+$_SESSION['nick'] = $new_account->nick;
 header('Content-Type: application/json');
-echo json_encode(['id' => $new_account->id]);
+echo json_encode([
+    'id' => $new_account->id,
+    'nick' => $new_account->nick
+]);

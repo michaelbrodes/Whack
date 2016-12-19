@@ -13,6 +13,25 @@ body {
   color: $font-color;
 }
 
+/**
+ * by default the logout, login, and leader board button should be hidden
+ */
+li#leader, li#login, li#logout, li.vert-divide {
+  display: none;
+}
+
+li.vert-divide {
+  font-size: 1.5em;
+  color: #9E9E9E;
+}
+
+li > span.center {
+  line-height: 20px;
+  position: relative;
+  display: block;
+  padding: 10px 15px;
+}
+
 div.main-panel {
   width: 80%;
   height: 500px;
@@ -262,7 +281,7 @@ section.keyboard {
       }
 
       &.curr {
-        background: url('/assets/images/mole.svg') no-repeat;
+        background-color: $font-fail;
       }
 
       &.space {
