@@ -47,3 +47,47 @@ function checkpass ( string $pwd, string $conf = null ) : bool
     return $password_match && $only_uni && strlen($pwd) >= $min_length;
 }
 
+/**
+ * Sends back a 401 response code if the user failed to login correctly
+ *
+ * @param string [$message] - the message to send back with response
+ */
+function unauthorized( string $message =
+                       "Your credentials where not determined to be authentic")
+{
+    http_response_code(401);
+    header('Content-Type: text/plain');
+    echo $message;
+    die();
+}
+
+/**
+ * The user inputted bad information into a form and now we have to send a 400
+ * error telling them what happend.
+ * @param string $message - the message we want to send back with the response
+ */
+function bad_input ( string $message )
+{
+    http_response_code(400);
+    header('Content-Type: text/plain');
+    echo $message;
+    die();
+}
+
+/**
+ * Save the user into session storage, because they just logged on
+ *
+ * @param string $nick - the user's nickname.
+ * @param int $id - the id of the user.
+ * @param array $session - the reference to the script's $_SESSION array
+ */
+function save_user ( string $nick, int $id, array &$session )
+{
+    $session['usr-id'] = $id;
+    $session['nick']   = $nick;
+    header('Content-Type: application/json');
+    echo json_encode([
+        "nick" => $nick,
+        "id"   => $id
+    ]);
+}

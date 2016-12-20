@@ -26,51 +26,37 @@ if ( !array_key_exists('new-usr', $post) ||
     !array_key_exists('new-pass', $post) ||
     !array_key_exists('conf-pass', $post) )
 {
-    # TODO: give the user an error
-    echo "I need a valid password and username, homie";
-    die();
+    bad_input("I need all the fields filled out");
 }
 
 $usr = $post['new-usr'];
 $pwd = $post['new-pass'];
 
-# test if the new password is the same as the confirmed password, and throw an
-# error if it isn't
-
 # nicks are not needed so we can default to an empty string if not supplied
 $nick = isset($post['nick'])? $post["nick"] : "";
 
 # checking user input
-#TODO give the user an error
 if ( !checkname($usr) )
 {
-    echo "I need a valid username " . $usr;
-    die();
+    bad_input("The username you inputted is invalid.");
 }
 else if ( !checkpass($pwd, $post['conf-pass']) )
 {
-    echo "I need a valid password " . $pwd . " " . $post['conf-pass'];
-    die();
+    bad_input("The password you inputted is invalid.");
 }
 else if ( Account::check_existence($usr) !== null )
 {
-    echo "I have a duplicate name buddy!";
-    die();
+    bad_input("The username inputted already exists.");
 }
 
 $new_account = Account::create($usr, $pwd, $nick);
 
 if ( $new_account === null )
 {
-    echo "I had an error inserting the management you just created into the database";
+    http_response_code(500);
+    header("Content-Type: text/plain");
+    echo "There is a problem with inserting your account into the database. Please try again.";
     die();
 }
 
-# send back id as a handler for the management.
-$_SESSION['usr-id'] = $new_account->id;
-$_SESSION['nick'] = $new_account->nick;
-header('Content-Type: application/json');
-echo json_encode([
-    'id' => $new_account->id,
-    'nick' => $new_account->nick
-]);
+save_user($new_account->nick, $new_account->id, $_SESSION);

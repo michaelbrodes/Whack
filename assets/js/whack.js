@@ -125,6 +125,10 @@
                     templateUrl: template("leaderboard"),
                     controller: "leadController"
                 })
+                .when('/error/:errMessage', {
+                    templateUrl: template("error"),
+                    controller: "errController"
+                })
                 .otherwise({
                     templateUrl: template("main"),
                     controller: "mainController"
@@ -215,9 +219,7 @@
                 self.length = self.statement.length;
 
             }, function errorCallback(res) {
-
-                console.error(res);
-
+                $location.path('/error/bad-response');
             });
         };
 
@@ -312,7 +314,6 @@
             // two dimensional array showing the rows and keys of a keyboard
             self.keyboard = res.data;
         }, function fail( res ) {
-            $log.error(res);
         });
     }]);
 
@@ -334,7 +335,7 @@
             this.nick = "";
             this.loading = false;
             // an error coming from the backend; placed during ajax call
-            this.backendErr = null;
+            this.backendErr = "";
         }
 
         /**
@@ -370,6 +371,7 @@
          */
         Account.prototype.login = function ( usr, pass ) {
             this.loading = true;
+            this.backendErr = "";
             var self = this;
 
             $http.post('/whack/management/login.php', {
@@ -378,7 +380,8 @@
             }).then(function ( res ) {
                 self.loadAccount(res, self);
             }, function fail ( res ) {
-                $log.error(res);
+                self.backendErr += res.data + " [" + res.status + "]";
+                self.loading = false;
             });
         };
 
@@ -391,6 +394,7 @@
          */
         Account.prototype.create = function ( usr, pass, conf, nick ) {
             this.loading = true;
+            this.backendErr = "";
             var self = this;
 
             $http.post('/whack/management/create.php', {
@@ -401,7 +405,8 @@
             }).then(function ( res ) {
                 self.loadAccount(res, self);
             }, function fail ( res )  {
-                $log.error(res);
+                self.backendErr += res.data + " [" + res.status + "]";
+                self.loading = false;
             });
         };
 
@@ -491,6 +496,15 @@
         return new Account();
     }]);
 
+    /**
+     * Associative array (object) handing the various messages for different
+     * error route params
+     */
+    whack.service('ErrorMessage', function () {
+        this['file-not-found'] = "The page you are looking for doesn't exist. If the URL is hardcoded that may have caused the problem. In that case please only use links.";
+        this['bad-response'] = "The server issued an unpredicted error for your request. Try again. If that doesn't work, contact the person who installed the software";
+    });
+
 
     /**
      * The homepage of the application. It has a login form and a create an
@@ -573,9 +587,24 @@
     }]);
 
     /**
+     * Handle an error through a generic way.
+     */
+    whack.controller('errController', ['$routeParams', 'ErrorMessage', '$scope',
+        '$location',
+        function ($routeParams, ErrorMessage, $scope, $location) {
+        if ( $routeParams.errMessage in ErrorMessage ) {
+            $scope.message = ErrorMessage[$routeParams.errMessage];
+        }
+        else {
+            $location.path('/');
+        }
+    }]);
+
+    /**
      * At the start of the application we need to check if the user is logged in
      */
-    whack.run(['$http', 'Account', '$log', function ($http, Account, $log) {
+    whack.run(['$http', 'Account', '$log', '$location',
+        function ($http, Account, $log) {
         Account.loading = true;
         $http.get('/whack/management/islogged.php').then(function success( res ) {
             if ( res.data.nick !== "" && res.data.id !== -1)
@@ -589,7 +618,7 @@
 
             Account.loading = false;
         }, function fail ( res ) {
-            $log.error(res);
+            $location.path('/error/bad-response');
         })
     }]);
 }();

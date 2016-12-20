@@ -24,7 +24,7 @@ class Account
      * @param string $nick
      * @return Account
      */
-    public static function create ( string $usr, string $pwd, string $nick = "" ) : Account
+    public static function create ( string $usr, string $pwd, string $nick = "" )
     {
         $new_account = new static();
         # running on a RPi so cost is low due to hardware constraints
@@ -69,7 +69,7 @@ class Account
      * @return Account - if the account exists then the function returns the
      *                   account, otherwise, it returns false.
      */
-    public static function check_existence (string $usr): Account
+    public static function check_existence (string $usr)
     {
         $db = WhackDB::getInstance()->getPDO();
         $exist_sql = "SELECT * FROM whack.Account WHERE name = :username";
