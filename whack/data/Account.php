@@ -66,17 +66,27 @@ class Account
      * Checks if the user with the corresponding username exists in the database
      *
      * @param string $usr - the username we are checking
-     * @return bool - whether the user exists or not
+     * @return Account - if the account exists then the function returns the
+     *                   account, otherwise, it returns false.
      */
-    public static function check_existence (string $usr): bool
+    public static function check_existence (string $usr): Account
     {
         $db = WhackDB::getInstance()->getPDO();
-        $exist_sql = "SELECT name FROM whack.Account WHERE name = :username";
+        $exist_sql = "SELECT * FROM whack.Account WHERE name = :username";
 
         $exist_stmt = $db->prepare($exist_sql);
         $exist_stmt->execute(array( ":username" => $usr ));
-        $usr_matches = $exist_stmt->fetchAll(PDO::FETCH_ASSOC);
+        $exist_stmt->setFetchMode(PDO::FETCH_CLASS, static::class);
+        // there can only be one instance of a username in the database. So I am
+        // just fetching the one.
+        $usr_match = $exist_stmt->fetch();
 
-        return count($usr_matches) > 0;
+        # if fetch returned false
+        if ( !$usr_match )
+        {
+            $usr_match = null;
+        }
+
+        return $usr_match;
     }
 }

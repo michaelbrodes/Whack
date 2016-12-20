@@ -10,6 +10,8 @@ session_start();
           content="width=device-width, initial-scale=1, maximum-scale=1"
     />
 
+    <link rel="icon" href="/assets/images/mole.png" type="image/png">
+
     <link rel="stylesheet"
           href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
           integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
@@ -44,10 +46,9 @@ session_start();
                 <li><a href="#/">Home</a></li>
                 <!-- these will be filled in dynamically when the user logs on -->
                 <li id="leader"><a href="#/leaderboard"></a></li>
-                <li role="separator" class="divider"></li>
                 <li class="vert-divide"><span class="center">|</span></li>
                 <li id="login"><span class="center"></span></li>
-                <li id="logout"><a href="#/logout"></a></li>
+                <li id="logout"><a href="/whack/management/logout.php"></a></li>
             </ul>
         </div>
     </div>

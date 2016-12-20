@@ -29,23 +29,26 @@
         </button>
     </li>
 </ul>
-<div class="modal fade"
+<div class="modal fade account-modal"
      id="login-modal"
      tabindex="-1"
      role="dialog">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                Create An Account
+                Login
             </div>
             <form ng-submit="account.login(userField, passField)">
-                <div class="modal-body account-box">
+                <div class="modal-body account-box" ng-hide="account.loading">
                     <div class="boxes">
                         <label for="user">Username</label>
                         <input id="user"
                                name="user"
                                type="text"
-                               ng-class="{'good': account.validName(userField) && userField !== '', 'bad': !account.validName(userField) && userField !== ''}"
+                               ng-class="{'good': account.validName(userField)
+                                                  && userField !== '',
+                                          'bad': !account.validName(userField)
+                                                  && userField !== ''}"
                                ng-model="userField"
                         />
                     </div>
@@ -54,10 +57,16 @@
                         <input id="password"
                                name="password"
                                type="password"
-                               ng-class="{'good': account.validPass(passField) && passField !== '', 'bad': !account.validPass(passField) && passField !== ''}"
+                               ng-class="{'good': account.validPass(passField)
+                                                  && passField !== '',
+                                          'bad': !account.validPass(passField)
+                                                  && passField !== ''}"
                                ng-model="passField"
                         />
                     </div>
+                </div>
+                <div class="modal-body account-box" ng-show="account.loading">
+                    <div class="cp-spinner cp-round"></div>
                 </div>
                 <div class="modal-footer">
                     <span class="err">
@@ -65,13 +74,16 @@
                     </span>
                     <input type="submit"
                            class="button btn-submit"
-                           ng-disabled="!account.validName(userField) || !account.validPass(passField) || userField === '' || passField === ''"/>
+                           ng-disabled="!account.validName(userField) ||
+                                        !account.validPass(passField) ||
+                                        userField === '' ||
+                                        passField === ''"/>
                 </div>
             </form>
         </div>
     </div>
 </div>
-<div class="modal fade"
+<div class="modal fade account-modal"
      id="create-modal"
      tabindex="-1"
      role="dialog">
@@ -94,7 +106,10 @@
                         <input id="nick"
                                name="nick"
                                type="text"
-                               ng-class="{'good': account.validPass(passField) && passField !== '', 'bad': !account.validPass(passField) && passField !== ''}"
+                               ng-class="{'good': account.validPass(passField)
+                                                  && passField !== '',
+                                          'bad': !account.validPass(passField)
+                                                 && passField !== ''}"
                                ng-model="nick"
                         />
                     </div>
@@ -103,7 +118,10 @@
                         <input id="new-usr"
                                name="new-usr"
                                type="text"
-                               ng-class="{'good': account.validName(newUser) && newUser !== '', 'bad': !account.validName(newUser) && newUser !== ''}"
+                               ng-class="{'good': account.validName(newUser) &&
+                                                  newUser !== '',
+                                          'bad': !account.validName(newUser) &&
+                                                 newUser !== ''}"
                                ng-model="newUser"
                         />
                     </div>
@@ -112,7 +130,10 @@
                         <input id="new-pass"
                                name="new-pass"
                                type="password"
-                               ng-class="{'good': account.validPass(newPass) && newPass !== '', 'bad': !account.validPass(newPass) && newPass !== ''}"
+                               ng-class="{'good': account.validPass(newPass) &&
+                                                  newPass !== '',
+                                          'bad': !account.validPass(newPass) &&
+                                                  newPass !== ''}"
                                ng-model="newPass"
                         />
                     </div>
@@ -121,7 +142,9 @@
                         <input id="conf-pass"
                                name="conf"
                                type="password"
-                               ng-class="{'good': confPass === newPass && confPass !== '', 'bad': newPass !== confPass}"
+                               ng-class="{'good': confPass === newPass &&
+                                                  confPass !== '',
+                                          'bad': newPass !== confPass}"
                                ng-model="confPass"
                         />
                     </div>
@@ -132,7 +155,12 @@
                     </span>
                     <input type="submit"
                            class="button btn-submit"
-                           ng-disabled="!account.validName(newUser) || !account.validPass(newPass) || newPass !== confPass || nick === '' || newUser === '' || newPass === ''"/>
+                           ng-disabled="!account.validName(newUser) ||
+                                        !account.validPass(newPass) ||
+                                        newPass !== confPass ||
+                                        nick === '' ||
+                                        newUser === ''
+                                        || newPass === ''"/>
                 </div>
                 <div class="modal-body account-box" ng-show="account.loading">
                     <div class="cp-spinner cp-round"></div>

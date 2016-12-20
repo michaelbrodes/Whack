@@ -18,7 +18,7 @@
      * @param {string} nick - the user's nickname
      */
     function displayUserInfo ( nick ) {
-        angular.element("#create-modal").modal("hide");
+        angular.element(".account-modal").modal("hide");
         angular.element("#leader > a").text("Leaderboard");
         angular.element('#logout > a').text('Logout');
         angular.element('#login > span.center').text("Hello " + nick);
@@ -39,7 +39,6 @@
      */
     function FailBuffer () {
         this.fail = "";
-        // TODO: get apache to make this thing work
         this.buzzer = new Audio('/assets/audio/buzzer.wav');
     }
 
@@ -334,6 +333,8 @@
             this.id = INVALID_ID;
             this.nick = "";
             this.loading = false;
+            // an error coming from the backend; placed during ajax call
+            this.backendErr = null;
         }
 
         /**
@@ -345,6 +346,23 @@
         };
 
         /**
+         * load in a account of the user into the provided Account object. This
+         * is done using the response object coming from the backend. This is
+         * usually provided as a callback to a promise's fulfillment method
+         *
+         * @param {object} res - the backend's response
+         * @param {Account} account - The account we are loading into
+         */
+        Account.prototype.loadAccount = function ( res, account ) {
+            account.id = res.data.id;
+            account.logged = true;
+            account.loading = false;
+            account.nick = res.data.nick;
+
+            displayUserInfo(account.nick);
+        };
+
+        /**
          * Logs in the user with the specified username and password.
          *
          * @param {string} usr
@@ -352,6 +370,16 @@
          */
         Account.prototype.login = function ( usr, pass ) {
             this.loading = true;
+            var self = this;
+
+            $http.post('/whack/management/login.php', {
+                "user": usr,
+                "password": pass
+            }).then(function ( res ) {
+                self.loadAccount(res, self);
+            }, function fail ( res ) {
+                $log.error(res);
+            });
         };
 
         /**
@@ -370,13 +398,8 @@
                 "new-pass": pass,
                 nick: nick,
                 "conf-pass": conf
-            }).then(function success ( res ) {
-                self.id = res.data.id;
-                self.logged = true;
-                self.loading = false;
-                self.nick = res.data.nick;
-
-                displayUserInfo(self.nick);
+            }).then(function ( res ) {
+                self.loadAccount(res, self);
             }, function fail ( res )  {
                 $log.error(res);
             });
@@ -425,7 +448,7 @@
             var maxUser = 30;
             var message = "";
             // the default value of confPass is an empty string.
-            confPass = "" || confPass;
+            confPass = confPass || "";
 
             // don't annoy the user if their password is empty
             if ( usr === '' && pwd === '')
@@ -454,6 +477,11 @@
                 if ( confPass !== pwd && confPass !== "" )
                 {
                     message += "The password fields don't match."
+                }
+
+                if ( this.backendErr )
+                {
+                    message += this.backendErr;
                 }
             }
 
