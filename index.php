@@ -45,7 +45,7 @@ session_start();
             <ul class="nav navbar-nav navbar-right" id="links">
                 <li><a href="#/">Home</a></li>
                 <!-- these will be filled in dynamically when the user logs on -->
-                <li id="leader"><a href="#/leaderboard"></a></li>
+                <li id="play-button"><a href="#/play"></a></li>
                 <li class="vert-divide"><span class="center">|</span></li>
                 <li id="login"><span class="center"></span></li>
                 <li id="logout"><a href="/whack/management/logout.php"></a></li>
