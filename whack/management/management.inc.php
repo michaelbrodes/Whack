@@ -6,6 +6,7 @@
  * Time: 10:20 PM
  */
 namespace whack\management;
+use whack\data\Account;
 
 /**
  * checks if the name supplied follows our username guidelines (this is just a
@@ -75,19 +76,41 @@ function bad_input ( string $message )
 }
 
 /**
+ * If the user does a get request on a post only script, we throw a file not
+ * found response code.
+ */
+function invalid_request ()
+{
+    http_response_code(404);
+    header('Location: /#/error/file-not-found');
+    die();
+}
+
+/**
  * Save the user into session storage, because they just logged on
  *
- * @param string $nick - the user's nickname.
- * @param int $id - the id of the user.
+ * @param Account $account - the account to store
  * @param array $session - the reference to the script's $_SESSION array
+ * @param bool $to_rem - whether we should remember the user via a cookie or not
  */
-function save_user ( string $nick, int $id, array &$session )
+function save_user ( Account $account, array &$session, bool $to_rem )
 {
-    $session['usr-id'] = $id;
-    $session['nick']   = $nick;
+    # store user into cookie
+    $token = $account->storeToken();
+    $identifier = $account->genCookie($token);
+    if ( $to_rem )
+    {
+        // make the cookie expire a month from now
+        $to_expire = mktime(0, 0, 0, date('M') + 1);
+        setcookie("remember", $identifier, $to_expire);
+    }
+    # store user into session
+    $session['usr-id'] = $identifier;
+    $session['nick']   = $account->nick;
+
     header('Content-Type: application/json');
     echo json_encode([
-        "nick" => $nick,
-        "id"   => $id
+        "nick" => $account->nick,
+        "id"   => $identifier
     ]);
 }

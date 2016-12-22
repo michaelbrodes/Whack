@@ -18,6 +18,7 @@ function phrase_to_array( Phrase $phrase ) : array
         $phrase->getAssocImages()[0]->getImagePath(): null;
 
     $phrase_array = [
+        "id" => $phrase->getId(),
         "statement" => $phrase->getStatement(),
         "author" => $phrase->getAuthor(),
         "origin" => $phrase->getOrigin(),

@@ -16,4 +16,10 @@ if ( array_key_exists('usr-id', $_SESSION) &&
     unset($_SESSION['nick']);
 }
 
+if ( isset($_COOKIE['remember']))
+{
+    // empties out the cookie
+    setcookie('remember');
+}
+
 header("Location: /");

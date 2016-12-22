@@ -109,7 +109,21 @@ class Account
         return hash_equals($public_key, $user_hash);
     }
 
+    /**
+     * Get the nickname for the user with the specified id
+     * @param int $id - the user's id
+     * @return string - the user's nickname
+     */
+    public static function nabNick ( int $id )
+    {
+        $nicksql = "SELECT nick FROM whack.Account WHERE id = :id";
+        $pdo = WhackDB::getInstance()->getPDO();
+        $nick_stmt  = $pdo->prepare($nicksql);
+        $nick_stmt->execute([':id' => $id]);
+        WhackDB::getInstance()->freePDO($pdo);
 
+        return $nick_stmt->fetch(PDO::FETCH_ASSOC)['nick'];
+    }
 
     /**
      * Takes in a username, password, and nickname and creates a new entry into

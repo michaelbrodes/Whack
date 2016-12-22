@@ -19,7 +19,7 @@
      */
     function displayUserInfo ( nick ) {
         angular.element(".account-modal").modal("hide");
-        angular.element("#leader > a").text("Leaderboard");
+        angular.element("#play-button > a").text('Play');
         angular.element('#logout > a').text('Logout');
         angular.element('#login > span.center').text("Hello " + nick);
 
@@ -166,6 +166,7 @@
             this.imagePath = "";
             this.author = "";
             this.origin = "";
+            this.id = -1;
             // const that we check against length to know if our spinner should
             // go
             this.LOADING = -1;
@@ -187,6 +188,7 @@
             this.imagePath = phraseArray['imagePath'];
             this.author = phraseArray['author'];
             this.origin = phraseArray['origin'];
+            this.id = phraseArray['id'];
         };
 
         /**
@@ -200,7 +202,8 @@
                 statement: this.statement,
                 imagePath: this.imagePath,
                 author: this.author,
-                origin: this.origin
+                origin: this.origin,
+                id: this.id
             };
         };
 
@@ -368,15 +371,17 @@
          *
          * @param {string} usr
          * @param {string} pass
+         * @param {boolean} toRem
          */
-        Account.prototype.login = function ( usr, pass ) {
+        Account.prototype.login = function ( usr, pass, toRem ) {
             this.loading = true;
             this.backendErr = "";
             var self = this;
 
             $http.post('/whack/management/login.php', {
                 "user": usr,
-                "password": pass
+                "password": pass,
+                "to-rem": toRem
             }).then(function ( res ) {
                 self.loadAccount(res, self);
             }, function fail ( res ) {
@@ -391,8 +396,10 @@
          * @param pass - new password
          * @param conf - confirmation of that new password
          * @param nick - nickname for the user
+         * @param {boolean} toRem - whether the the user should remembered via
+         *                          cookie
          */
-        Account.prototype.create = function ( usr, pass, conf, nick ) {
+        Account.prototype.create = function ( usr, pass, conf, nick, toRem ) {
             this.loading = true;
             this.backendErr = "";
             var self = this;
@@ -401,7 +408,8 @@
                 "new-usr": usr,
                 "new-pass": pass,
                 nick: nick,
-                "conf-pass": conf
+                "conf-pass": conf,
+                "to-rem": toRem
             }).then(function ( res ) {
                 self.loadAccount(res, self);
             }, function fail ( res )  {
@@ -501,7 +509,7 @@
      * error route params
      */
     whack.service('ErrorMessage', function () {
-        this['file-not-found'] = "The page you are looking for doesn't exist. If the URL is hardcoded that may have caused the problem. In that case please only use links.";
+        this['file-not-found'] = "The page you are looking for doesn't exist. If the URL is hardcoded that may have caused the problem.";
         this['bad-response'] = "The server issued an unpredicted error for your request. Try again. If that doesn't work, contact the person who installed the software";
     });
 
@@ -523,6 +531,7 @@
         $scope.newUser = "";
         $scope.confPass = "";
         $scope.nick = "";
+        $scope.toRem = false;
     }]);
 
     /**
@@ -577,6 +586,9 @@
     whack.controller('leadController', ['$http', '$scope', '$document',
         '$location', 'PhraseGame',
         function( $http, $scope, $document, $location, PhraseGame ){
+        $scope.scores = [];
+        $scope.loading = true;
+        // the space key can always be used to go back to the game
         $document.keypress(function ( event ) {
             if (event.keyCode === 32) {
                 $scope.$apply(function () {

@@ -14,8 +14,7 @@ require_once 'management.inc.php';
 
 if ( $_SERVER["REQUEST_METHOD"] !== "POST" )
 {
-    header("Location: /");
-    die();
+    invalid_request();
 }
 
 # decode the json string sent by angular into an associative array
@@ -24,7 +23,8 @@ $post = json_decode(file_get_contents("php://input"), true);
 # these three keys are all that are needed to preform a creation action
 if ( !array_key_exists('new-usr', $post) ||
     !array_key_exists('new-pass', $post) ||
-    !array_key_exists('conf-pass', $post) )
+    !array_key_exists('conf-pass', $post) ||
+    !array_key_exists('to-rem', $post))
 {
     bad_input("I need all the fields filled out");
 }
@@ -44,7 +44,7 @@ else if ( !checkpass($pwd, $post['conf-pass']) )
 {
     bad_input("The password you inputted is invalid.");
 }
-else if ( Account::check_existence($usr) !== null )
+else if ( Account::getUser($usr) !== null )
 {
     bad_input("The username inputted already exists.");
 }
@@ -59,4 +59,4 @@ if ( $new_account === null )
     die();
 }
 
-save_user($new_account->nick, $new_account->id, $_SESSION);
+save_user($new_account, $_SESSION, $post['to-rem']);
