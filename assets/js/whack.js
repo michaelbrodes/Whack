@@ -13,6 +13,22 @@
     }
 
     /**
+     * Uses angular.element (alias to JQuery) to display information, that
+     * should only be displayed to users on, the navbar
+     * @param {string} nick - the user's nickname
+     */
+    function displayUserInfo ( nick ) {
+        angular.element(".account-modal").modal("hide");
+        angular.element("#play-button > a").text('Play');
+        angular.element('#logout > a').text('Logout');
+        angular.element('#login > span.center').text("Hello " + nick);
+
+        angular.element('#links > li').each(function () {
+            angular.element(this).css('display', 'inline-block');
+        });
+    }
+
+    /**
      * The keyboard generated in the view
      */
 
@@ -23,7 +39,6 @@
      */
     function FailBuffer () {
         this.fail = "";
-        // TODO: get apache to make this thing work
         this.buzzer = new Audio('/assets/audio/buzzer.wav');
     }
 
@@ -110,6 +125,10 @@
                     templateUrl: template("leaderboard"),
                     controller: "leadController"
                 })
+                .when('/error/:errMessage', {
+                    templateUrl: template("error"),
+                    controller: "errController"
+                })
                 .otherwise({
                     templateUrl: template("main"),
                     controller: "mainController"
@@ -147,9 +166,13 @@
             this.imagePath = "";
             this.author = "";
             this.origin = "";
+            this.id = -1;
+            // const that we check against length to know if our spinner should
+            // go
+            this.LOADING = -1;
             // -1 for a the check of whether the complete buffer is equal to the
             // length of the phrase buffer.
-            this.length = -1;
+            this.length = this.LOADING;
             this.startTime = 0;
             this.characters = 0;
             this.finalWPM = 0;
@@ -165,6 +188,7 @@
             this.imagePath = phraseArray['imagePath'];
             this.author = phraseArray['author'];
             this.origin = phraseArray['origin'];
+            this.id = phraseArray['id'];
         };
 
         /**
@@ -178,7 +202,8 @@
                 statement: this.statement,
                 imagePath: this.imagePath,
                 author: this.author,
-                origin: this.origin
+                origin: this.origin,
+                id: this.id
             };
         };
 
@@ -188,17 +213,16 @@
          */
         PhraseGame.prototype.start = function () {
             var self = this;
-            $http.get('/whack/phrases/get_phrase.php').then(function successCallback(res) {
+            self.length = self.LOADING;
 
+            $http.get('/whack/phrases/get_phrase.php').then(function successCallback(res) {
                 self.registerGameParams(res.data);
                 self.startTime = Date.now()/1000;
                 self.characters = 0;
                 self.length = self.statement.length;
 
             }, function errorCallback(res) {
-
-                console.error(res);
-
+                $location.path('/error/bad-response');
             });
         };
 
@@ -293,16 +317,227 @@
             // two dimensional array showing the rows and keys of a keyboard
             self.keyboard = res.data;
         }, function fail( res ) {
-            $log.error(res);
         });
     }]);
 
+    /**
+     * The management of the current user.
+     */
+    whack.factory('Account', ['$http', '$log', function ( $http, $log ) {
+        var INVALID_ID = -1;
+        /**
+         * Angular service with management capabilities brought from the backend
+         * @constructor
+         */
+        function Account () {
+            // initial values of attributes ( the user is not considered logged
+            // in)
+            this.logged = false;
+            // invalid database id
+            this.id = INVALID_ID;
+            this.nick = "";
+            this.loading = false;
+            // an error coming from the backend; placed during ajax call
+            this.backendErr = "";
+        }
 
-    whack.controller('mainController',
-        ['$scope', 'Config', function ( $scope, Config ) {
-        $scope.config = Config;
+        /**
+         * Shows if the user is logged in or not
+         * @returns {boolean}
+         */
+        Account.prototype.isLogged = function () {
+            return this.logged;
+        };
+
+        /**
+         * load in a account of the user into the provided Account object. This
+         * is done using the response object coming from the backend. This is
+         * usually provided as a callback to a promise's fulfillment method
+         *
+         * @param {object} res - the backend's response
+         * @param {Account} account - The account we are loading into
+         */
+        Account.prototype.loadAccount = function ( res, account ) {
+            account.id = res.data.id;
+            account.logged = true;
+            account.loading = false;
+            account.nick = res.data.nick;
+
+            displayUserInfo(account.nick);
+        };
+
+        /**
+         * Logs in the user with the specified username and password.
+         *
+         * @param {string} usr
+         * @param {string} pass
+         * @param {boolean} toRem
+         */
+        Account.prototype.login = function ( usr, pass, toRem ) {
+            this.loading = true;
+            this.backendErr = "";
+            var self = this;
+
+            $http.post('/whack/management/login.php', {
+                "user": usr,
+                "password": pass,
+                "to-rem": toRem
+            }).then(function ( res ) {
+                self.loadAccount(res, self);
+            }, function fail ( res ) {
+                self.backendErr += res.data + " [" + res.status + "]";
+                self.loading = false;
+            });
+        };
+
+        /**
+         * creates a user management using the backend
+         * @param usr - new username
+         * @param pass - new password
+         * @param conf - confirmation of that new password
+         * @param nick - nickname for the user
+         * @param {boolean} toRem - whether the the user should remembered via
+         *                          cookie
+         */
+        Account.prototype.create = function ( usr, pass, conf, nick, toRem ) {
+            this.loading = true;
+            this.backendErr = "";
+            var self = this;
+
+            $http.post('/whack/management/create.php', {
+                "new-usr": usr,
+                "new-pass": pass,
+                nick: nick,
+                "conf-pass": conf,
+                "to-rem": toRem
+            }).then(function ( res ) {
+                self.loadAccount(res, self);
+            }, function fail ( res )  {
+                self.backendErr += res.data + " [" + res.status + "]";
+                self.loading = false;
+            });
+        };
+
+        /**
+         * Tests whether the username has no spaces, has only unicode
+         * characters, and is no longer than 30 characters in length.
+         *
+         * @param {string} usr
+         * @returns {boolean}
+         */
+        Account.prototype.validName = function ( usr ) {
+            // right now I am only testing for spaces
+            var notUser = /\s/g;
+            // matches only valid utf8 bytes
+            var unicode = /^([\x00-\x7F]|([\xC2-\xDF]|\xE0[\xA0-\xBF]|\xED[\x80-\x9F]|(|[\xE1-\xEC]|[\xEE-\xEF]|\xF0[\x90-\xBF]|\xF4[\x80-\x8F]|[\xF1-\xF3][\x80-\xBF])[\x80-\xBF])[\x80-\xBF])*$/g;
+            // needs to be less than 30 bytes
+            var maxLength = 30;
+
+            return !notUser.test(usr) && unicode.test(usr) &&
+                usr.length <= maxLength;
+        };
+
+        /**
+         * Checks whether the the password is greater than or equal to 8
+         * characters in length and is valid unicode.
+         * @param {string} pass
+         * @returns {boolean}
+         */
+        Account.prototype.validPass = function ( pass ) {
+            var minLength = 8;
+            var unicode = /^([\x00-\x7F]|([\xC2-\xDF]|\xE0[\xA0-\xBF]|\xED[\x80-\x9F]|(|[\xE1-\xEC]|[\xEE-\xEF]|\xF0[\x90-\xBF]|\xF4[\x80-\x8F]|[\xF1-\xF3][\x80-\xBF])[\x80-\xBF])[\x80-\xBF])*$/g;
+
+            return pass.length >= 8 && unicode.test(pass);
+        };
+
+        /**
+         * produces error message based on how the user input is invalid
+         * @param {string} usr - the username provided by the user
+         * @param {string} pwd - the password provided by the user
+         * @param {string} [confPass] - optional param to be checked against pwd
+         */
+        Account.prototype.errMessage = function ( usr, pwd, confPass ) {
+            var maxPass = 8;
+            var maxUser = 30;
+            var message = "";
+            // the default value of confPass is an empty string.
+            confPass = confPass || "";
+
+            // don't annoy the user if their password is empty
+            if ( usr === '' && pwd === '')
+            {
+                return message;
+            }
+            else
+            {
+                // actual error checks
+                if ( pwd.length < maxPass )
+                {
+                    message += "Password needs to be more than 7 chars long. ";
+                }
+
+                if ( usr.length > maxUser )
+                {
+                    message += "User name needs to be less than 30 chars long. ";
+                }
+
+                if ( /\s/g.test(usr) )
+                {
+                    message += "There can be no spaces in your username. ";
+                }
+
+                // if confPass is an empty string then we may be on log in.
+                if ( confPass !== pwd && confPass !== "" )
+                {
+                    message += "The password fields don't match."
+                }
+
+                if ( this.backendErr )
+                {
+                    message += this.backendErr;
+                }
+            }
+
+            return message;
+        };
+
+        return new Account();
     }]);
 
+    /**
+     * Associative array (object) handing the various messages for different
+     * error route params
+     */
+    whack.service('ErrorMessage', function () {
+        this['file-not-found'] = "The page you are looking for doesn't exist. If the URL is hardcoded that may have caused the problem.";
+        this['bad-response'] = "The server issued an unpredicted error for your request. Try again. If that doesn't work, contact the person who installed the software";
+    });
+
+
+    /**
+     * The homepage of the application. It has a login form and a create an
+     * account form. If the user is already logged in (check via api call to the
+     * backend) then we display navigation of our site
+     */
+    whack.controller('mainController',
+        ['$scope', 'Config', 'Account', function ( $scope, Config, Account ) {
+        $scope.config = Config;
+        // to check if the user is logged on
+        $scope.account = Account;
+        // The credentials that the user is going to put into the log in form
+        $scope.userField = "";
+        $scope.passField = "";
+        $scope.newPass = "";
+        $scope.newUser = "";
+        $scope.confPass = "";
+        $scope.nick = "";
+        $scope.toRem = false;
+    }]);
+
+    /**
+     * The actual Whack game; it has a keyboard, a phrase to type, and other
+     * miscellaneous information about that phrase.
+     */
     whack.controller('gameController',
         ['$scope', '$log', '$document', 'PhraseGame', 'Config',
             function( $scope, $log, $document, PhraseGame, Config ){
@@ -344,9 +579,16 @@
 
     }]);
 
+    /**
+     * The Whack game's leaderboard. It will display the top ten scores of each
+     * user for that phrase, and have a readout for the phrase.
+     */
     whack.controller('leadController', ['$http', '$scope', '$document',
         '$location', 'PhraseGame',
         function( $http, $scope, $document, $location, PhraseGame ){
+        $scope.scores = [];
+        $scope.loading = true;
+        // the space key can always be used to go back to the game
         $document.keypress(function ( event ) {
             if (event.keyCode === 32) {
                 $scope.$apply(function () {
@@ -354,5 +596,41 @@
                 });
             }
         })
-    }])
+    }]);
+
+    /**
+     * Handle an error through a generic way.
+     */
+    whack.controller('errController', ['$routeParams', 'ErrorMessage', '$scope',
+        '$location',
+        function ($routeParams, ErrorMessage, $scope, $location) {
+        if ( $routeParams.errMessage in ErrorMessage ) {
+            $scope.message = ErrorMessage[$routeParams.errMessage];
+        }
+        else {
+            $location.path('/');
+        }
+    }]);
+
+    /**
+     * At the start of the application we need to check if the user is logged in
+     */
+    whack.run(['$http', 'Account', '$log', '$location',
+        function ($http, Account, $log) {
+        Account.loading = true;
+        $http.get('/whack/management/islogged.php').then(function success( res ) {
+            if ( res.data.nick !== "" && res.data.id !== -1)
+            {
+                Account.nick    = res.data.nick;
+                Account.id      = res.data.id;
+                Account.logged  = true;
+
+                displayUserInfo(Account.nick);
+            }
+
+            Account.loading = false;
+        }, function fail ( res ) {
+            $location.path('/error/bad-response');
+        })
+    }]);
 }();

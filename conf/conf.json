@@ -1,11 +1,12 @@
 {
+  "rootDir": "/home/michael/projects/Whack/",
   "currentCountry": "us",
   "boards": [
     "us"
   ],
   "database": {
-    "host": "localhost",
-    "user": "root",
-    "password": ""
+    "host": "127.0.0.1",
+    "user": "michael",
+    "password": "rhodes"
   }
 }

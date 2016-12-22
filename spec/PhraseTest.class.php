@@ -5,7 +5,6 @@ use PHPUnit\Framework\TestCase;
 use whack\data\WhackDB;
 use whack\data\Phrase;
 use whack\data\Image;
-use whack\phrases;
 
 /**
  * Created by PhpStorm.
@@ -93,19 +92,19 @@ class PhraseTest extends TestCase
         }
     }
 
-    public function testGetKeyboard()
-    {
-        $current_ctry = phrases\grab_config('currentCountry');
-        $this->assertJson($current_ctry);
-        $this->assertEquals("us", json_decode($current_ctry));
-        $board_str = phrases\get_board();
-
-        $this->assertJson($board_str);
-        $board_arr = json_decode($board_str, true);
-
-        $this->assertNotNull($board_arr);
-        $this->assertContains("4^$", $board_arr[0]);
-    }
+//    public function testGetKeyboard()
+//    {
+//        $current_ctry = phrases\grab_config('currentCountry');
+//        $this->assertJson($current_ctry);
+//        $this->assertEquals("us", json_decode($current_ctry));
+//        $board_str = phrases\get_board();
+//
+//        $this->assertJson($board_str);
+//        $board_arr = json_decode($board_str, true);
+//
+//        $this->assertNotNull($board_arr);
+//        $this->assertContains("4^$", $board_arr[0]);
+//    }
 
 //    /**
 //     * @depends testPhraseCreation

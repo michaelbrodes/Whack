@@ -1,21 +1,22 @@
-<section id="phrase-panel">
+<div class="loaded-game" ng-hide="phrase.length === phrase.LOADING">
+    <section id="phrase-panel">
 
-    <!--HACK: need to remove unwanted space-->
-    <span class="game-element" id="success" ng-bind="complete"></span><!--
+        <!--HACK: need to remove unwanted space-->
+        <span class="game-element" id="success" ng-bind="complete"></span><!--
     --><span class="game-element" id="fail" ng-bind="failBuffer.fail"></span><!--
     --><span class="game-element" id="phrase" ng-bind="phrase.statement"></span>
 
-    <div class="asides">
-        <aside id="phrase-info">
-            {{phrase.author}} - {{phrase.origin}}
-        </aside>
-        <aside id="wpm">
-            WPM - {{wpm | number:3}}
-        </aside>
-    </div>
-</section>
-<section class="keyboard">
-    <div class="key-row" ng-repeat="row in config.keyboard">
+        <div class="asides">
+            <aside id="phrase-info">
+                {{phrase.author}} - {{phrase.origin}}
+            </aside>
+            <aside id="wpm">
+                WPM - {{wpm | number:3}}
+            </aside>
+        </div>
+    </section>
+    <section class="keyboard">
+        <div class="key-row" ng-repeat="row in config.keyboard">
         <span class="key"
               ng-repeat="key in row"
               ng-class="{'curr': phrase.peek(key)}"
@@ -23,11 +24,15 @@
             {{ key | case }}
             <sup>{{ key | case: true }}</sup>
         </span>
-    </div>
-    <div class="key-row">
+        </div>
+        <div class="key-row">
         <span class="key space"
               ng-class="{'curr': phrase.peek('Space')}">
             Space
         </span>
-    </div>
-</section>
+        </div>
+    </section>
+</div>
+<div class="loading" ng-show="phrase.length === phrase.LOADING">
+    <div class="cp-spinner cp-round"></div>
+</div>

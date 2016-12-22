@@ -13,6 +13,25 @@ body {
   color: $font-color;
 }
 
+/**
+ * by default the logout, login, and leader board button should be hidden
+ */
+li#leader, li#login, li#logout, li.vert-divide {
+  display: none;
+}
+
+li.vert-divide {
+  font-size: 1.5em;
+  color: #9E9E9E;
+}
+
+li > span.center {
+  line-height: 20px;
+  position: relative;
+  display: block;
+  padding: 10px 15px;
+}
+
 div.main-panel {
   width: 80%;
   height: 500px;
@@ -37,6 +56,21 @@ div.main-panel {
     h1 {
       font-family: 'Pacifico', 'Brush Script MT', cursive;
     } // h1
+
+    noscript {
+      background-color: $font-fail;
+      display: block;
+      color: #FAFAFA;
+      @include radius(5px);
+      width: 100%;
+
+      a, a:hover {
+        text-decoration: underline;
+        color: #FAFAFA;
+        font-weight: bold;
+
+      }
+    }
   } // .panel-body
 } // main-panel
 
@@ -52,19 +86,29 @@ ul.button-group {
     @include shadow;
     @include radius(2px);
 
-    a.button {
+    .button {
       /* fill the container w/ link */
       display: block;
       width: 100%;
       height: 100%;
-      /* end fill the container */
-      line-height: 2.5em;
-      color: whitesmoke;
-      text-transform: uppercase;
-      text-decoration: none;
     }
   }
+}
 
+.button {
+  /* remove <button> defaults */
+  background-color: $btn-color;
+  border-style: none;
+  line-height: 2.5em;
+  color: whitesmoke;
+  text-transform: uppercase;
+  text-decoration: none;
+}
+
+.button:hover {
+  color: whitesmoke;
+  text-decoration: none;
+  background-color: darken($btn-color, 10%);
 }
 
 section#phrase-panel {
@@ -108,7 +152,6 @@ aside#phrase-info {
     left: 10%;
     right: 10%;
   };
-
 }
 
 img {
@@ -131,6 +174,75 @@ aside#wpm {
   }
 }
 
+div.account-box {
+  div.boxes {
+    label {
+      width: 20%;
+    } // label
+
+    input {
+      text-align: center;
+      outline: none;
+      border: none;
+      border-bottom : {
+        width: 2px;
+        style: solid;
+        color: $bottom-border;
+        left-radius: 1px;
+        right-radius: 1px;
+      } // border-bottom
+
+      /* represents the bottom border of the text field */
+
+      &:focus {
+        border-bottom-color: $font-color;
+        transition: all 0.5s linear;
+      } // focus
+
+      &.bad {
+        border-bottom-color: $bottom-fail;
+      } // .bad
+
+      &.good {
+        border-bottom-color: $bottom-suc;
+      } // .good
+    } // input
+  } // .boxes
+} // .management-box
+
+input.button.btn-submit {
+  @include shadow;
+}
+
+input.button.btn-submit[disabled] {
+  background-color: #9E9E9E;
+}
+
+span.err {
+  float: left;
+  font-size: smaller;
+  color: $font-fail;
+}
+
+div.fade-hide, div.fade-show {
+  -webkit-transition:all cubic-bezier(0.250, 0.460, 0.450, 0.940) 0.5s;
+  -moz-transition:all cubic-bezier(0.250, 0.460, 0.450, 0.940) 0.5s;
+  -o-transition:all cubic-bezier(0.250, 0.460, 0.450, 0.940) 0.5s;
+  transition:all cubic-bezier(0.250, 0.460, 0.450, 0.940) 0.5s;
+}
+
+.fade-hide {
+  opacity:1;
+}
+.fade-hide.fade-hide-active {
+  opacity:0;
+}
+.fade-show {
+  opacity:0;
+}
+.fade-show.fade-show-active {
+  opacity:1;
+}
 
 section.keyboard {
   margin-top: 3em;
@@ -157,7 +269,7 @@ section.keyboard {
         bottom: .5em;
       }
 
-      margin : {
+      margin: {
         left: 5px;
         right: 5px;
       }
@@ -169,16 +281,15 @@ section.keyboard {
       }
 
       &.curr {
-        background: url('/assets/images/mole.svg') no-repeat;
+        background-color: $font-fail;
       }
 
       &.space {
         min-width: 25%;
-      }
-    }
-  }
-}
-
+      } // .space
+    } // .key
+  } // .key-row
+} // .keyboard
 
 @media screen and (max-width: 960px) {
   div.main-panel {

@@ -30,7 +30,6 @@ class WhackDB
      */
     protected function __construct ()
     {
-        // TODO: get from environment variable since this entry can vary
         $conf_path = $_SERVER['DOCUMENT_ROOT'] . "/conf/conf.json";
         $db_vars = json_decode(file_get_contents($conf_path), true)['database'];
 
@@ -53,7 +52,7 @@ class WhackDB
     private function &createPDO() : PDO
     {
         $connection = null;
-        $dsn = 'mysql:host=' . $this->host . ';dbname=whack';
+        $dsn = 'mysql:host=' . $this->host . ';dbname=whack;port=3306;charset=utf8';
         try
         {
             $connection = new PDO(
@@ -78,7 +77,9 @@ class WhackDB
             $message = "Error found in $file at line $line\n" .
                 "Reason: $error_reason\n" . $stack_trace;
 
-            error_log($message, 3, $destination);
+            echo $message;
+            die();
+            #error_log($message, 3, $destination);
         }
 
         return $connection;
