@@ -38,7 +38,7 @@
             <div class="modal-header">
                 Login
             </div>
-            <form ng-submit="account.login(userField, passField)">
+            <form ng-submit="account.login(userField, passField, toRem)">
                 <div class="modal-body account-box" ng-hide="account.loading">
                     <div class="boxes">
                         <label for="user">Username</label>
@@ -63,6 +63,14 @@
                                                   && passField !== ''}"
                                ng-model="passField"
                         />
+                    </div>
+                    <div class="boxes">
+                        <input type="checkbox"
+                               id="to-rem"
+                               name="to-rem"
+                               ng-model="toRem"
+                        />
+                        <label for="to-rem">Remember me</label>
                     </div>
                 </div>
                 <div class="modal-body account-box" ng-show="account.loading">
@@ -98,7 +106,7 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <form ng-submit="account.create(newUser, newPass, confPass, nick)">
+            <form ng-submit="account.create(newUser, newPass, confPass, nick, toRem)">
                 <div class="modal-body account-box"
                      ng-hide="account.loading">
                     <div class="boxes">
@@ -147,6 +155,14 @@
                                           'bad': newPass !== confPass}"
                                ng-model="confPass"
                         />
+                    </div>
+                    <div class="boxes">
+                        <input type="checkbox"
+                               id="rememberme"
+                               name="toRem"
+                               ng-model="toRem"
+                        />
+                        <label for="rememberme">Remember me</label>
                     </div>
                 </div>
                 <div class="modal-footer">
