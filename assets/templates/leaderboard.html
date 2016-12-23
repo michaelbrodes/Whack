@@ -1,3 +1,46 @@
-<a href="#/play" class="button">
-    Back
-</a>
+<div class="container">
+    <div class="col-md-8">
+        <table class="table" id="leaderboard" ng-show="!loading && !errMessage">
+            <caption id="board-title">Leaderboard (by WPM)</caption>
+            <thead>
+                <tr>
+                    <th>Rank</th>
+                    <th>User</th>
+                    <th>WPM</th>
+                    <th>Accuracy</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="score in scores">
+                    <td> {{ $index + 1 }} </td>
+                    <td> {{ score.user }} </td>
+                    <td> {{ score.wpm | number: 2}} </td>
+                    <td> {{ score.accuracy * 100 | number: 2 }} &percnt; </td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="jumbotron" ng-show="errMessage">
+            {{ errMessage }}
+        </div>
+    </div>
+    <div class="col-md-8 cp-spinner cp-round" ng-hide="!loading"></div>
+    <div class="col-md-4" id="phrase-meta">
+        <!-- phrase's image -->
+        <img ng-src="{{ imagePath }}" ng-show="imagePath" />
+        <!-- audio associated readout of the phrase -->
+        <audio src="{{ audioPath | trustAudio }}" autoplay controls ng-show="audioPath">
+            Your browser doesn't support audio playback of the phrase.
+        </audio>
+        <ul>
+            <li>{{ author }}</li>
+            <li>{{ origin }}</li>
+        </ul>
+    </div>
+    <ul class="button-group" id="to-play">
+        <li>
+            <a href="#/play"  class="button">
+                Back
+            </a>
+        </li>
+    </ul>
+</div>
