@@ -154,6 +154,12 @@
         }
     });
 
+    whack.filter('trustAudio', ['$sce', function ($sce) {
+        return function (audioSrc) {
+            return $sce.trustAsResourceUrl(audioSrc);
+        }
+    }]);
+
     whack.factory('PhraseGame', ['$http', '$location', 'caseFilter',
         function ($http, $location, caseFilter) {
         /**
@@ -166,6 +172,7 @@
             this.imagePath = "";
             this.author = "";
             this.origin = "";
+            this.audioPath = "";
             // const that we check against length to know if our spinner should
             // go
             this.LOADING = -1;
@@ -594,6 +601,10 @@
         $scope.scores = [];
         $scope.loading = true;
         $scope.errMessage = "";
+        $scope.imagePath = PhraseGame.imagePath;
+        $scope.audioPath = PhraseGame.audioPath;
+        $scope.author = PhraseGame.author;
+        $scope.origin = PhraseGame.origin;
 
         // the space key can always be used to go back to the game
         $document.keypress(function ( event ) {

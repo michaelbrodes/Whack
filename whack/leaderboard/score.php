@@ -23,12 +23,15 @@ if ( array_key_exists('identifier', $post) &&
      array_key_exists('wpm', $post) &&
      array_key_exists('accuracy', $post) )
 {
-    reg_score(
+    $reg = reg_score(
         $post['Phrase_id'],
         $post['identifier'],
         $post['wpm'],
         $post['accuracy']
     );
+
+    if ( $reg ) echo "Registering new score";
+    else echo "unable register score";
 }
 else
 {
