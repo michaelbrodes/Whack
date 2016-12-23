@@ -176,6 +176,8 @@
             this.startTime = 0;
             this.characters = 0;
             this.finalWPM = 0;
+            this.accuracy = 0;
+            this.misses = 0;
         }
 
         /**
@@ -215,12 +217,12 @@
             var self = this;
             self.length = self.LOADING;
 
-            $http.get('/whack/phrases/get_phrase.php').then(function successCallback(res) {
+            return $http.get('/whack/phrases/get_phrase.php').then(function successCallback(res) {
                 self.registerGameParams(res.data);
                 self.startTime = Date.now()/1000;
                 self.characters = 0;
                 self.length = self.statement.length;
-
+                self.misses = 0;
             }, function errorCallback(res) {
                 $location.path('/error/bad-response');
             });
@@ -269,6 +271,7 @@
         PhraseGame.prototype.checkCompletetion = function(complete) {
             if ( complete.length === this.length ) {
                 this.finalWPM = this.wpm();
+                this.accuracy = 1 - this.misses / this.length;
                 $location.path('/leaderboard');
             }
         };
@@ -570,6 +573,7 @@
                 // otherwise we failed.
                 else {
                     $scope.failBuffer.add(PhraseGame);
+                    PhraseGame.misses++;
                 }
 
                 $scope.wpm = PhraseGame.wpm();
@@ -584,10 +588,38 @@
      * user for that phrase, and have a readout for the phrase.
      */
     whack.controller('leadController', ['$http', '$scope', '$document',
-        '$location', 'PhraseGame',
-        function( $http, $scope, $document, $location, PhraseGame ){
+        '$location', 'PhraseGame', 'Account',
+        function( $http, $scope, $document, $location, PhraseGame, Account ){
         $scope.scores = [];
         $scope.loading = true;
+
+        var getLeader = '/whack/leaderboard/get_board.php?phrase=' + PhraseGame.id;
+        $scope.userStats = {
+            identifier: Account.id,
+            user: Account.nick,
+            Phrase_id: PhraseGame.id,
+            wpm: PhraseGame.finalWPM,
+            accuracy: PhraseGame.accuracy
+        };
+
+        // get_board.php returns a JSON array with the various scores
+        $http.get(getLeader).then(function ( res ) {
+            // historical data
+            $scope.scores = res.data;
+            // current user's data
+            $scope.scores.push($scope.userStats);
+            // sort data by wpm
+            $scope.scores.sort(function ( a, b ) {
+                return b['wpm'] - a['wpm'];
+            });
+            $scope.loading = false;
+        }, function ( res ) {
+            $location.path('/error/bad-response');
+        });
+
+        // record my results
+        $http.post('/whack/leaderboard/score.php', $scope.userStats);
+
         // the space key can always be used to go back to the game
         $document.keypress(function ( event ) {
             if (event.keyCode === 32) {
