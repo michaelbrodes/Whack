@@ -12,13 +12,17 @@ use \PDO;
 class Account
 {
     # private fields corresponding to the columns in the database
-    public $name, $password, $nick, $id, $private_key;
+    public $name, $password, $nick, $id, $private_key, $admin;
     private $pdo;
     private static $TOKEN_SIZE = 128;
 
     public function __construct()
     {
         $this->pdo = WhackDB::getInstance()->getPDO();
+        if ( isset($this->admin) )
+        {
+            $this->admin = (bool)$this->admin;
+        }
     }
 
     /**
@@ -133,9 +137,11 @@ class Account
      * @param string $usr
      * @param string $pwd
      * @param string $nick
+     * @param bool $admin - whether the account should be admin
      * @return Account
      */
-    public static function create ( string $usr, string $pwd, string $nick = "" )
+    public static function create ( string $usr, string $pwd,
+                                    string $nick = "", bool $admin = false)
     {
         $new_account = new static();
         # running on a RPi so cost is low due to hardware constraints
@@ -147,6 +153,7 @@ class Account
 
         $new_account->nick = $nick;
         $new_account->name = $usr;
+        $new_account->admin = $admin;
 
         // create new private_key key for storing cookies
         $new_account->private_key = bin2hex(
@@ -156,15 +163,16 @@ class Account
         # store the object
         $pdo = WhackDB::getInstance()->getPDO();
         $store_sql = "INSERT INTO 
-                      whack.Account(name, password, nick, private_key) 
-                      VALUES (:name, :pwd, :nick, :private_key)";
+                      whack.Account(name, password, nick, private_key, admin) 
+                      VALUES (:name, :pwd, :nick, :private_key, :admin)";
         $store_acc = $pdo->prepare($store_sql);
 
         $worked = $store_acc->execute([
             ':name' => $new_account->name,
             ':pwd'  => $new_account->password,
             ':nick' => $new_account->nick,
-            ':private_key' => $new_account->private_key
+            ':private_key' => $new_account->private_key,
+            ':admin' => (int)$new_account->admin
         ]);
 
         $new_account->id = $pdo->lastInsertId();
@@ -206,4 +214,25 @@ class Account
 
         return $usr_match;
     }
+
+    /**
+     * Get an Account object corresponding to the Account's id in the Account
+     * table
+     *
+     * @param int $uid
+     * @return Account
+     */
+    public static function getUserById ( int $uid ) : Account
+    {
+        $db = WhackDB::getInstance()->getPDO();
+
+        $grab = $db->prepare("SELECT * FROM whack.Account WHERE id = :id");
+        $grab->execute([ ':id' => $uid ]);
+        $grab->setFetchMode(PDO::FETCH_CLASS, static::class);
+        # only one id per account
+        $match = $grab->fetch();
+
+        return $match;
+    }
+
 }

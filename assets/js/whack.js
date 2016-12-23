@@ -125,6 +125,10 @@
                     templateUrl: template("leaderboard"),
                     controller: "leadController"
                 })
+                .when('/admin', {
+                    templateUrl: template('admin'),
+                    controller: 'adminController'
+                })
                 .when('/error/:errMessage', {
                     templateUrl: template("error"),
                     controller: "errController"
@@ -335,7 +339,6 @@
      * The management of the current user.
      */
     whack.factory('Account', ['$http', '$log', function ( $http, $log ) {
-        var INVALID_ID = -1;
         /**
          * Angular service with management capabilities brought from the backend
          * @constructor
@@ -345,9 +348,11 @@
             // in)
             this.logged = false;
             // invalid database id
-            this.id = INVALID_ID;
+            this.INVALID_ID = -1;
+            this.id = this.INVALID_ID;
             this.nick = "";
             this.loading = false;
+            this.isAdmin = false;
             // an error coming from the backend; placed during ajax call
             this.backendErr = "";
         }
@@ -370,6 +375,7 @@
          */
         Account.prototype.loadAccount = function ( res, account ) {
             account.id = res.data.id;
+            account.isAdmin = res.data.admin;
             account.logged = true;
             account.loading = false;
             account.nick = res.data.nick;
@@ -652,6 +658,10 @@
         }
     }]);
 
+    whack.controller('adminController', function () {
+
+    });
+
     /**
      * Handle an error through a generic way.
      */
@@ -677,6 +687,7 @@
             {
                 Account.nick    = res.data.nick;
                 Account.id      = res.data.id;
+                Account.isAdmin = res.data.admin;
                 Account.logged  = true;
 
                 displayUserInfo(Account.nick);
