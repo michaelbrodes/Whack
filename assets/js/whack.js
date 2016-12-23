@@ -166,13 +166,14 @@
             this.imagePath = "";
             this.author = "";
             this.origin = "";
-            this.id = -1;
             // const that we check against length to know if our spinner should
             // go
             this.LOADING = -1;
+            this.NOID = -1;
             // -1 for a the check of whether the complete buffer is equal to the
             // length of the phrase buffer.
             this.length = this.LOADING;
+            this.id = this.NOID;
             this.startTime = 0;
             this.characters = 0;
             this.finalWPM = 0;
@@ -592,33 +593,7 @@
         function( $http, $scope, $document, $location, PhraseGame, Account ){
         $scope.scores = [];
         $scope.loading = true;
-
-        var getLeader = '/whack/leaderboard/get_board.php?phrase=' + PhraseGame.id;
-        $scope.userStats = {
-            identifier: Account.id,
-            user: Account.nick,
-            Phrase_id: PhraseGame.id,
-            wpm: PhraseGame.finalWPM,
-            accuracy: PhraseGame.accuracy
-        };
-
-        // get_board.php returns a JSON array with the various scores
-        $http.get(getLeader).then(function ( res ) {
-            // historical data
-            $scope.scores = res.data;
-            // current user's data
-            $scope.scores.push($scope.userStats);
-            // sort data by wpm
-            $scope.scores.sort(function ( a, b ) {
-                return b['wpm'] - a['wpm'];
-            });
-            $scope.loading = false;
-        }, function ( res ) {
-            $location.path('/error/bad-response');
-        });
-
-        // record my results
-        $http.post('/whack/leaderboard/score.php', $scope.userStats);
+        $scope.errMessage = "";
 
         // the space key can always be used to go back to the game
         $document.keypress(function ( event ) {
@@ -627,7 +602,43 @@
                     $location.path('/play');
                 });
             }
-        })
+        });
+
+        if ( PhraseGame.id !== PhraseGame.NOID) {
+            var getLeader = '/whack/leaderboard/get_board.php?phrase=' + PhraseGame.id;
+            $scope.userStats = {
+                identifier: Account.id,
+                user: Account.nick,
+                Phrase_id: PhraseGame.id,
+                wpm: PhraseGame.finalWPM,
+                accuracy: PhraseGame.accuracy
+            };
+
+            // get_board.php returns a JSON array with the various scores
+            $http.get(getLeader).then(function ( res ) {
+                // historical data
+                $scope.scores = res.data;
+                // current user's data
+                $scope.scores.push($scope.userStats);
+                // sort data by wpm
+                $scope.scores.sort(function ( a, b ) {
+                    return b['wpm'] - a['wpm'];
+                });
+                $scope.loading = false;
+            }, function ( res ) {
+                $location.path('/error/bad-response');
+            });
+
+            // record my results
+            $http.post('/whack/leaderboard/score.php', $scope.userStats)
+                .then(function ( res ) {
+                    console.log(res);
+                });
+
+        } else {
+            $scope.loading = false;
+            $scope.errMessage = "No phrase to look up!";
+        }
     }]);
 
     /**

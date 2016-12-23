@@ -28,54 +28,73 @@ function reg_score( int $Phrase_id, string $identifier, float $wpm,
 {
     global $pdo;
 
-    if ( !Account::verifyCookie($identifier) )
+    if ( $identifier !== "" && !Account::verifyCookie($identifier) )
     {
         // the user was authenticated correctly
         return false;
     }
 
     $id = (int)(explode(':', $identifier)[0]);
-    remove_score($id, $wpm);
-    $insert = "INSERT INTO 
+    # if we remove the previous score
+    if ( remove_prev($id, $Phrase_id, $wpm) )
+    {
+        $insert = "INSERT INTO 
                whack.Score(Phrase_id, Account_id, wpm, accuracy) 
                VALUES (:phrase, :user, :wpm, :acc)";
-    $insert_stmt = $pdo->prepare($insert);
-    return $insert_stmt->execute([
-        ':user' => $id,
-        ':phrase' => $Phrase_id,
-        ':wpm' => $wpm,
-        ':acc' => $accuracy
-    ]);
-}
-
-/**
- * Remove the existing user score if the wpm is higher
- * @param int $uid
- * @param float $wpm
- * @return bool - whether we removed or not
- */
-function remove_score ( int $uid, float $wpm ): bool
-{
-    global $pdo;
-    $find_user = $pdo->prepare(
-        "SELECT wpm FROM whack.Score WHERE Account_id = :id"
-    );
-    $find_user->execute([':id' => $uid]);
-    $user_score = $find_user->fetch(PDO::FETCH_ASSOC);
-
-    // we already have a user score and it's larger than this score
-    if ( $user_score !== null && $user_score['wpm'] > $wpm )
-    {
-        $delete_score = $pdo->prepare(
-            "DELETE FROM whack.Score WHERE Account_id = :id"
-        );
-        return $delete_score->execute([":id" => $uid]);
+        $insert_stmt = $pdo->prepare($insert);
+        return $insert_stmt->execute([
+            ":wpm" => $wpm,
+            ":acc" => $accuracy,
+            ":user" => $id,
+            ":phrase" => $Phrase_id
+        ]);
     }
     else
     {
         return false;
     }
+}
 
+/**
+ * Remove the existing user score if the wpm is higher
+ * @param int $uid
+ * @param int $pid - the phrase's id
+ * @param float $wpm
+ *
+ * @return bool - whether the score is greater than previous or previous doesn't
+ *                exist
+ */
+function remove_prev ( int $uid, int $pid, float $wpm ): bool
+{
+    global $pdo;
+    $find_user = $pdo->prepare(
+        "SELECT wpm FROM whack.Score 
+         WHERE Account_id = :uid AND Phrase_id = :pid"
+    );
+    $find_user->execute([':uid' => $uid, ':pid' => $pid]);
+    $user_score = $find_user->fetch(PDO::FETCH_ASSOC);
+
+    if ( $user_score !== null )
+    {
+        if ( $user_score['wpm'] < $wpm )
+        {
+            $delete_score = $pdo->prepare(
+                "DELETE FROM whack.Score 
+             WHERE Account_id = :uid AND Phrase_id = :pid"
+            );
+            return $delete_score->execute([":uid" => $uid, ":pid" => $pid]);
+        }
+        else
+        {
+            # the stored wpm is greater than the current wpm, so don't remove it
+            return false;
+        }
+    }
+    else
+    {
+        # previous entry doesn't exist, so register it as removed
+        return true;
+    }
 }
 
 /**
