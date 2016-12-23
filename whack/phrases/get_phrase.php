@@ -16,13 +16,16 @@ function phrase_to_array( Phrase $phrase ) : array
 {
     $image = isset($phrase->getAssocImages()[0])?
         $phrase->getAssocImages()[0]->getImagePath(): null;
+    $audio = isset($phrase->getAssocAudio()[0])?
+        $phrase->getAssocAudio()[0]['path']: null;
 
     $phrase_array = [
         "id" => $phrase->getId(),
         "statement" => $phrase->getStatement(),
         "author" => $phrase->getAuthor(),
         "origin" => $phrase->getOrigin(),
-        "imagePath" => $image
+        "imagePath" => $image,
+        "audioPath" => $audio
     ];
 
     return $phrase_array;
@@ -42,11 +45,11 @@ function get_phrase() : array
     {
         # the sql statement in the else statement is invalid if sql_params is
         # empty
-        $phrase_sql = "SELECT * FROM Phrase";
+        $phrase_sql = "SELECT * FROM whack.Phrase";
     }
     else
     {
-        $phrase_sql = "SELECT * FROM Phrase WHERE id NOT IN (".
+        $phrase_sql = "SELECT * FROM whack.Phrase WHERE id NOT IN (".
             implode($exclude_ids, ',').")";
     }
 

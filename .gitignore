@@ -11,3 +11,6 @@ assets/audio/
 
 # site specific data
 www/
+
+#audio
+*.mp4

@@ -58,7 +58,7 @@ class PhraseTest extends TestCase
     {
         $database = WhackDB::getInstance();
         $pdo = $database->getPDO();
-        $statement = $pdo->query("SELECT * FROM Phrase WHERE id = 6");
+        $statement = $pdo->query("SELECT * FROM whack.Phrase WHERE id = 6");
         $result = $statement->fetchAll(
             PDO::FETCH_CLASS,
             Phrase::class
@@ -106,12 +106,48 @@ class PhraseTest extends TestCase
 //        $this->assertContains("4^$", $board_arr[0]);
 //    }
 
-//    /**
-//     * @depends testPhraseCreation
-//     * @param Phrase $phrase
-//     */
-//    public function testImageUpload(PhraseGame $phrase)
-//    {
-//    }
+    /**
+     * @depends testPhraseCreation
+     * @param Phrase $phrase
+     */
+    public function testImageUpload(Phrase $phrase)
+    {
+        $files = [
+            'name' => 'test.jpg',
+            'tmp_name' => 'test.jpg',
+            'size' => 9681,
+            'type' => 'image/jpeg'
+        ];
+
+        $success = $phrase->upload_image($files);
+        $this->assertTrue($success, 'Image uploaded');
+        $assoc = $phrase->getAssocImages();
+        $this->assertNotEmpty($assoc, "Have associated images");
+
+        // cleanup
+        $inserted = $assoc[count($assoc) - 1];
+        $inserted_id = $inserted->getId();
+        copy($inserted->getImagePath(), './test.jpg');
+        $pdo = WhackDB::getInstance()->getPDO();
+    }
+
+    /**
+     * @depends testPhraseCreation
+     * @param Phrase $phrase
+     */
+    public function testAudioUpload(Phrase $phrase)
+    {
+        $files = [
+            'name' => 'test.mp4',
+            'tmp_name' => 'test.mp4',
+            'size' => 5359285,
+            'type' => 'audio/mp4'
+        ];
+
+        $success = $phrase->upload_audio($files);
+        $this->assertTrue($success);
+        $assoc = $phrase->getAssocAudio();
+        $this->assertNotEmpty($assoc, "Created audio");
+    }
 
 }

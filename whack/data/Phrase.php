@@ -18,9 +18,15 @@ class Phrase
 {
     # attributes provided by PDO::FETCH_CLASS
     private $id, $statement, $author, $char_count, $origin;
+    # attributes provided by the constructor
     private $assoc_images;
+    private $assoc_audio;
     # pdo object acquired from WhackDB
     private $db;
+    # 1 MiB
+    const MAX_IMAGE = 1049000;
+    # 11 MiB
+    const MAX_AUDIO = 11530000;
 
     public function __construct()
     {
@@ -30,6 +36,7 @@ class Phrase
         if ( $this->id )
         {
             $this->assoc_images = $this->fetch_imgs();
+            $this->assoc_audio  = $this->fetch_adio();
         }
     }
 
@@ -79,6 +86,69 @@ class Phrase
         return $this->statement;
     }
 
+    /**
+     * Take in an entry from the $_FILES array, move it's contents to
+     * /assets/audio/ and record it in the Audio and Audio_Phrase tables
+     *
+     * @param array $audio_arr - an entry from the $_FILES array
+     * @return bool
+     */
+    public function upload_audio ( array $audio_arr ) : bool
+    {
+        $src = $audio_arr['tmp_name'];
+        $pdo = $this->db->getPDO();
+        $valid_types = [
+            'audio/mp4',
+            'video/mp4',
+            'audio/mpeg',
+            'audio/wav',
+            'audio/wave',
+            'audio/mpeg3',
+            'audio/x-wav',
+            'audio/x-mpeg',
+            'audio/x-mpeg-3',
+            'audio/ogg'
+        ];
+
+        $dest = "/assets/audio/" . basename($src);
+        $size = $audio_arr['size'];
+        $mime = mime_content_type($src);
+
+        # checking file validity
+        $size_check = $size > static::MAX_AUDIO;
+        $invalid_mime = !in_array( $mime, $valid_types );
+        echo $mime;
+        $fail = $size_check || $invalid_mime || isset($audio_arr['error']);
+        if ( $fail ) {
+            echo "I am failing at file validation";
+            return !$fail;
+        }
+
+        # move audio from upload dir to assets - return false on fail
+        if ( !rename($src, $dest) ) return false;
+
+        #insert into Audio table
+        $audio = $pdo->prepare(
+            "INSERT INTO whack.Audio(path, content_type) VALUES (:path, :mime)"
+        );
+
+        if( !$audio->execute([':path' => $dest, ':mime' => $mime]) )
+        {
+            # failed insertion into audio table
+            return false;
+        }
+
+        $aid = $pdo->lastInsertId();
+        $join = $pdo->prepare(
+            "INSERT INTO whack.Audio_Phrase (Phrase_id, Audio_id) 
+             VALUES (:pid, :aid)"
+        );
+        $join_suc = $join->execute([':aid' => $aid, ':pid' => $this->id]);
+        $this->db->freePDO($pdo);
+        $this->assoc_audio = $this->fetch_adio();
+
+        return $join_suc;
+    }
 
     /**
      * Upload an image attached to this phrase to the Images database.
@@ -91,7 +161,7 @@ class Phrase
     {
         # the image is associated with a phrase so we can use it's tmp_name
         $name = $image_array['tmp_name'];
-        $dest = $_SERVER['DOCUMENT_ROOT'] . "/assets/images/" . basename($name);
+        $dest = "/assets/images/" . basename($name);
         $pdo = $this->db->getPDO();
         $size = $image_array['size'];
         # check to make sure mime is jpg or png
@@ -99,18 +169,22 @@ class Phrase
         $valid_types = array('image/jpeg', 'image/png');
         $valid_mime = in_array($mime, $valid_types);
         # can't be larger than 1 MiB
-        $fail = $size > 1049000 || isset($image_array['error']) || $valid_mime;
+        $fail = $size > static::MAX_IMAGE || isset($image_array['error']) || !$valid_mime;
 
         if ( $fail )
         {
-            return $fail;
+            return !$fail;
         }
 
         # if the move doesn't work we don't want the sql insertion to happen
-        move_uploaded_file($name, $dest);
+        #TODO: use move_uploaded_file
+        if (!rename($name, $dest))
+        {
+            return false;
+        }
 
         $img_sql =
-            "INSERT INTO Image(image_path, content_type) VALUES (:path, :type)";
+            "INSERT INTO whack.Image(image_path, content_type) VALUES (:path, :type)";
         $img_stmt = $pdo->prepare($img_sql);
         # whether the insertion failed or not
         $img_stmt->execute(array (
@@ -120,17 +194,17 @@ class Phrase
         $image_id = (int)$pdo->lastInsertId();
 
         $join_sql =
-            "INSERT INTO Image_Phrase(Phrase_id, Image_id) VALUES (:phrase, :image)";
+            "INSERT INTO whack.Image_Phrase(Phrase_id, Image_id) VALUES (:phrase, :image)";
         $join_stmt = $pdo->prepare($join_sql);
         # image_id won't be set to -1 if fail is false
-        $join_stmt->execute(array(
+        $success = $join_stmt->execute(array(
             ":phrase" => $this->id,
             ":image"  => $image_id
         ));
 
         $this->assoc_images = $this->fetch_imgs();
         $this->db->freePDO($pdo);
-        return $fail;
+        return $success;
     }
 
     /**
@@ -142,7 +216,7 @@ class Phrase
     private function fetch_imgs() : array
     {
         $pdo = $this->db->getPDO();
-        $id_stmt = $pdo->prepare("SELECT Image_id FROM Image_Phrase WHERE Phrase_id = :id");
+        $id_stmt = $pdo->prepare("SELECT Image_id FROM whack.Image_Phrase WHERE Phrase_id = :id");
 
         $id_stmt->bindParam(":id", $this->id);
         $id_stmt->setFetchMode(PDO::FETCH_ASSOC);
@@ -157,7 +231,7 @@ class Phrase
             return array();
         }
 
-        $image_sql = "SELECT * FROM Image WHERE id IN (". $sql_params." )";
+        $image_sql = "SELECT * FROM whack.Image WHERE id IN (". $sql_params." )";
         $img_stmt = $pdo->prepare($image_sql);
 
         foreach( $image_ids as $i => $id)
@@ -179,12 +253,29 @@ class Phrase
         return $images;
     }
 
+    private function fetch_adio () : array
+    {
+        $audio_join = "SELECT Audio.path, Audio.content_type 
+                       FROM whack.Audio 
+                       INNER JOIN whack.Audio_Phrase
+                       ON whack.Audio.id = whack.Audio_Phrase.Audio_id 
+                       WHERE Phrase_id = :id";
+        $audio_stmt = $this->db->getPDO()->prepare($audio_join);
+        $audio_stmt->execute([":id" => $this->id]);
+        return $audio_stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
     /**
      * @return array
      */
     public function getAssocImages(): array
     {
         return $this->assoc_images;
+    }
+
+    public function getAssocAudio(): array
+    {
+        return $this->assoc_audio;
     }
 
 }

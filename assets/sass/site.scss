@@ -16,7 +16,7 @@ body {
 /**
  * by default the logout, login, and leader board button should be hidden
  */
-li#leader, li#login, li#logout, li.vert-divide {
+li#leader, li#login, li#logout, li#play-button, li.vert-divide {
   display: none;
 }
 
@@ -155,13 +155,6 @@ aside#phrase-info {
 }
 
 img {
-  float: right;
-  max-width: 40px;
-  border: 5px solid $font-color;
-  margin: {
-    left: 10%;
-    right: 10%;
-  }
 }
 
 aside#wpm {
@@ -222,6 +215,47 @@ span.err {
   float: left;
   font-size: smaller;
   color: $font-fail;
+}
+
+div.contact {
+  max-width: 25%;
+}
+
+table#leaderboard {
+  text-align: left;
+  background-color: $board-color;
+  border-radius: 5px;
+}
+
+div#phrase-meta {
+  img {
+    // only 80% of the phrase-meta panel
+    max-width: 70%;
+    border: 5px solid $main-back;
+  }
+
+  audio {
+    margin: 1em;
+  }
+
+  ul {
+    margin: 2em;
+    list-style-type: none;
+    li {
+      line-height: 1.5em;
+    }// li
+  } // ul
+} // div#phrase-meta
+
+ul.button-group#to-play {
+  a {
+    position: absolute;
+    bottom: 10px;
+    left: 40%;
+    width: 25%;
+    height: 30px;
+    z-index: 2;
+  }
 }
 
 div.fade-hide, div.fade-show {
