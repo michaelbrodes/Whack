@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: Dec 22, 2016 at 09:02 PM
+-- Generation Time: Dec 23, 2016 at 01:22 AM
 -- Server version: 5.7.16-0ubuntu0.16.04.1
 -- PHP Version: 7.0.8-0ubuntu0.16.04.3
 
@@ -31,8 +31,16 @@ CREATE TABLE `Account` (
   `name` varchar(30) NOT NULL,
   `password` varchar(60) NOT NULL,
   `nick` varchar(30) DEFAULT NULL,
-  `private_key` varchar(512) NOT NULL
+  `private_key` varchar(512) NOT NULL,
+  `admin` tinyint(1) NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Dumping data for table `Account`
+--
+
+INSERT INTO `Account` (`id`, `name`, `password`, `nick`, `private_key`, `admin`) VALUES
+(56, 'root', '$2y$08$B4gH3TL692RQRzLeCVnWwOrDb86g6YEoMVxTlDPZ6yav.Vu8ZGq5O', 'root', '47bca78430e89d8d0e75611b1335eecf9c9f456d2074942ce23e09941dbb51512d51a5e46c3ac3b146e205d7230bb63341c0b8fe70b60d7622c91a5cbeee127c241522a9ce6356b3cddb156cc47f7dbdcf3aed33373d95e45d2db0da96442abf483a07f10690365549e55e2eceb4469bc0612d65d8629a2232bdac590b7be95c', 1);
 
 -- --------------------------------------------------------
 
@@ -46,6 +54,13 @@ CREATE TABLE `Audio` (
   `content_type` varchar(60) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+--
+-- Dumping data for table `Audio`
+--
+
+INSERT INTO `Audio` (`id`, `path`, `content_type`) VALUES
+(4, '/assets/audio/test.mp4', 'video/mp4');
+
 -- --------------------------------------------------------
 
 --
@@ -56,6 +71,13 @@ CREATE TABLE `Audio_Phrase` (
   `Phrase_id` int(11) NOT NULL,
   `Audio_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Dumping data for table `Audio_Phrase`
+--
+
+INSERT INTO `Audio_Phrase` (`Phrase_id`, `Audio_id`) VALUES
+(6, 4);
 
 -- --------------------------------------------------------
 
@@ -69,6 +91,13 @@ CREATE TABLE `Image` (
   `content_type` varchar(50) DEFAULT 'image/jpeg'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+--
+-- Dumping data for table `Image`
+--
+
+INSERT INTO `Image` (`id`, `image_path`, `content_type`) VALUES
+(27, '/assets/images/test.jpg', 'image/jpeg');
+
 -- --------------------------------------------------------
 
 --
@@ -79,6 +108,13 @@ CREATE TABLE `Image_Phrase` (
   `Image_id` int(11) NOT NULL,
   `Phrase_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Dumping data for table `Image_Phrase`
+--
+
+INSERT INTO `Image_Phrase` (`Image_id`, `Phrase_id`) VALUES
+(27, 6);
 
 -- --------------------------------------------------------
 
@@ -194,17 +230,17 @@ ALTER TABLE `Token`
 -- AUTO_INCREMENT for table `Account`
 --
 ALTER TABLE `Account`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=54;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=57;
 --
 -- AUTO_INCREMENT for table `Audio`
 --
 ALTER TABLE `Audio`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 --
 -- AUTO_INCREMENT for table `Image`
 --
 ALTER TABLE `Image`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
 --
 -- AUTO_INCREMENT for table `Phrase`
 --

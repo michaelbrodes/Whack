@@ -107,10 +107,12 @@ function save_user ( Account $account, array &$session, bool $to_rem )
     # store user into session
     $session['usr-id'] = $identifier;
     $session['nick']   = $account->nick;
+    $session['admin']  = $account->admin;
 
     header('Content-Type: application/json');
     echo json_encode([
-        "nick" => $account->nick,
-        "id"   => $identifier
+        "nick"  => $account->nick,
+        "id"    => $identifier,
+        "admin" => $account->admin
     ]);
 }

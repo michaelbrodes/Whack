@@ -4,16 +4,16 @@
 </p>
 <ul class="button-group play" ng-if="account.logged">
     <!-- elements to be displayed when the user is logged in -->
-        <li>
-            <a href="#/play/" class="button">
-                play
-            </a>
-        </li>
-        <li>
-            <a href="#/leaderboard/" class="button">
-                leaderboard
-            </a>
-        </li>
+    <li>
+        <a href="#/play/" class="button">
+            play
+        </a>
+    </li>
+    <li ng-if="account.isAdmin">
+        <a href="/whack/admin/" class="button">
+            Admin
+        </a>
+    </li>
 </ul>
 <ul class="button-group account" ng-if="!account.logged">
     <li>
@@ -114,10 +114,6 @@
                         <input id="nick"
                                name="nick"
                                type="text"
-                               ng-class="{'good': account.validPass(passField)
-                                                  && passField !== '',
-                                          'bad': !account.validPass(passField)
-                                                 && passField !== ''}"
                                ng-model="nick"
                         />
                     </div>
