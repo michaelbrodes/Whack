@@ -52,6 +52,27 @@ class Account
     }
 
     /**
+     * get a token that exists
+     * @return string
+     */
+    public function getToken () : string
+    {
+        $token = $this->pdo->query(
+            "SELECT token FROM whack.Token WHERE Account_id = $this->id"
+        );
+
+        if ( $result = $token->fetch(PDO::FETCH_ASSOC) )
+        {
+            return $result['token'];
+        }
+        else
+        {
+            # we didn't have a token stored so we should return an empty string
+            return "";
+        }
+    }
+
+    /**
      * Removes the old token entry for the user from the Token table. This
      * should only be used if the user's token has expired
      */

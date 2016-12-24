@@ -10,7 +10,7 @@
         </a>
     </li>
     <li ng-if="account.isAdmin">
-        <a href="#/admin/" class="button">
+        <a href="/whack/admin/" class="button">
             Admin
         </a>
     </li>
@@ -114,10 +114,6 @@
                         <input id="nick"
                                name="nick"
                                type="text"
-                               ng-class="{'good': account.validPass(passField)
-                                                  && passField !== '',
-                                          'bad': !account.validPass(passField)
-                                                 && passField !== ''}"
                                ng-model="nick"
                         />
                     </div>

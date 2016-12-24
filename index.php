@@ -69,10 +69,9 @@ session_start();
        <main id="site-content" ng-view></main>
    </div>
 </div>
-<script
-    src="https://code.jquery.com/jquery-2.2.4.min.js"
-    integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44="
-    crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-2.2.4.min.js"
+        integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44="
+        crossorigin="anonymous"></script>
 <script
     src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"
     integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU="
@@ -83,6 +82,7 @@ session_start();
         integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
         crossorigin="anonymous">
 </script>
+<script src="/assets/js/account.js"></script>
 <script src="/assets/js/whack.js"></script>
 </body>
 </html>
