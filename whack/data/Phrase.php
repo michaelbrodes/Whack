@@ -117,15 +117,13 @@ class Phrase
         # checking file validity
         $size_check = $size > static::MAX_AUDIO;
         $invalid_mime = !in_array( $mime, $valid_types );
-        echo $mime;
         $fail = $size_check || $invalid_mime || isset($audio_arr['error']);
         if ( $fail ) {
-            echo "I am failing at file validation";
             return !$fail;
         }
 
         # move audio from upload dir to assets - return false on fail
-        if ( !rename($src, $dest) ) return false;
+        if ( !move_uploaded_file($src, $dest) ) return false;
 
         #insert into Audio table
         $audio = $pdo->prepare(
@@ -161,15 +159,17 @@ class Phrase
     {
         # the image is associated with a phrase so we can use it's tmp_name
         $name = $image_array['tmp_name'];
-        $dest = "/assets/images/" . basename($name);
+        $dest = $_SERVER['DOCUMENT_ROOT'] ."/assets/images/"
+            . basename($image_array['name']);
         $pdo = $this->db->getPDO();
         $size = $image_array['size'];
         # check to make sure mime is jpg or png
         $mime = mime_content_type($name);
         $valid_types = array('image/jpeg', 'image/png');
         $valid_mime = in_array($mime, $valid_types);
+        $error = $image_array['error'] !== UPLOAD_ERR_OK;
         # can't be larger than 1 MiB
-        $fail = $size > static::MAX_IMAGE || isset($image_array['error']) || !$valid_mime;
+        $fail = $size > static::MAX_IMAGE || $error || !$valid_mime;
 
         if ( $fail )
         {
@@ -177,8 +177,7 @@ class Phrase
         }
 
         # if the move doesn't work we don't want the sql insertion to happen
-        #TODO: use move_uploaded_file
-        if (!rename($name, $dest))
+        if (!move_uploaded_file($name, $dest))
         {
             return false;
         }
@@ -186,10 +185,11 @@ class Phrase
         $img_sql =
             "INSERT INTO whack.Image(image_path, content_type) VALUES (:path, :type)";
         $img_stmt = $pdo->prepare($img_sql);
+        $server_path = '/assets/images/' . basename($image_array['name']);
         # whether the insertion failed or not
         $img_stmt->execute(array (
             ":type" => $mime,
-            ":path" => $dest
+            ":path" => $server_path
         ));
         $image_id = (int)$pdo->lastInsertId();
 
@@ -276,6 +276,50 @@ class Phrase
     public function getAssocAudio(): array
     {
         return $this->assoc_audio;
+    }
+
+    /**
+     * Creates a new phrase entry into the phrase table
+     * @param string $author
+     * @param string $phrase
+     * @param string $origin
+     * @return Phrase
+     */
+    public static function create(string $author,
+                                  string $phrase,
+                                  string $origin): Phrase
+    {
+        $pdo = WhackDB::getInstance()->getPDO();
+        $insert = $pdo->prepare(
+            "INSERT INTO whack.Phrase (author, statement, char_count, origin)
+             VALUES (:author, :phrase, :chars, :origin)"
+        );
+
+        # character count of the statement
+        $chars = strlen($phrase);
+        $execed = $insert->execute([
+            ":author" => $author,
+            ":phrase" => $phrase,
+            ":chars"  => $chars,
+            ':origin' => $origin
+        ]);
+
+        if ( $execed )
+        {
+            $new = new Phrase();
+            $new->id = $pdo->lastInsertId();
+            $new->author = $author;
+            $new->char_count = $chars;
+            $new->statement = $phrase;
+            $new->origin = $origin;
+        }
+        else
+        {
+            $new = false;
+        }
+
+        WhackDB::getInstance()->freePDO($pdo);
+        return $new;
     }
 
 }

@@ -14,6 +14,7 @@ if ( array_key_exists('usr-id', $_SESSION) &&
 {
     unset($_SESSION['usr-id']);
     unset($_SESSION['nick']);
+    unset($_SESSION['admin']);
 }
 
 if ( isset($_COOKIE['remember']))

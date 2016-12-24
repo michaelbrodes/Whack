@@ -16,8 +16,10 @@ body {
 /**
  * by default the logout, login, and leader board button should be hidden
  */
-li#leader, li#login, li#logout, li#play-button, li.vert-divide {
-  display: none;
+ul#links {
+  li#leader, li#login, li#logout, li#play-button, li.vert-divide {
+    display: none;
+  }
 }
 
 li.vert-divide {
@@ -30,6 +32,10 @@ li > span.center {
   position: relative;
   display: block;
   padding: 10px 15px;
+}
+
+span.optional {
+  color: #43A047;
 }
 
 div.main-panel {
