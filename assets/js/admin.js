@@ -6,7 +6,11 @@
 +function () {
     var admin = angular.module('admin', [ 'account' ]);
 
-    admin.controller('mainController', ['$http', 'Account',
-        function ($http, Account) {
+    admin.controller('mainController', ['$scope', '$http', 'Account',
+        function ($scope, $http, Account) {
+        $scope.adminForm = {
+            admin: "",
+            pwd: ""
+        };
     }]);
 }();

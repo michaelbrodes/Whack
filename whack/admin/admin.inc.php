@@ -42,7 +42,7 @@ function list_non_admins(): array
  */
 function gen_nonce ( Account $user, array &$session) : string
 {
-    $token = $user->storeToken();
+    $token = $user->id . ":" . $user->storeToken();
     if ( empty($session['nonces']) )
     {
         $session['nonces'] = [];
@@ -54,13 +54,13 @@ function gen_nonce ( Account $user, array &$session) : string
 /**
  * Verify that the nonce is correct. If it is we remove the nonce from the
  * database and session.
- * @param string $nonce - the nonce given by the client
- * @param int $uid - the id of the user that submitted the form
+ * @param string $nonce - the nonce and id given by the client
  * @param array $session -
  * @return bool
  */
-function verify_nonce ( string $nonce, int $uid, array &$session ) : bool
+function verify_nonce ( string $nonce, array &$session ) : bool
 {
+    $uid = explode(":", $nonce)[0];
     $user = Account::getUserById($uid);
 
     if ( isset($session['nonces']) )

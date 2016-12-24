@@ -180,7 +180,9 @@ if ( !$user->admin )
                         echo "<select class='form-control' 
                                   name='admin' 
                                   id='admin' 
-                                  size='$user_len'>";
+                                  size='$user_len'
+                                  ng-model='adminForm.admin'
+                                  >";
 
                         foreach ($users as $user)
                         {
@@ -195,7 +197,9 @@ if ( !$user->admin )
                         <input class="form-control"
                                type="password"
                                id="password"
-                               name="password">
+                               name="password"
+                               ng-model="adminForm.pwd"
+                        >
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -203,7 +207,7 @@ if ( !$user->admin )
                     <!-- TODO: disable on invalid user input -->
                     <input type='submit'
                             class='button btn-submit'
-                            ng-disabled='true'
+                            ng-disabled='adminForm.pwd === "" && adminForm.admin === ""'
                     />
                 </div>
             </form>

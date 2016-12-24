@@ -115,6 +115,21 @@ class Account
     }
 
     /**
+     * Make the current Account object an admin for the site, by setting it's
+     * admin value in the database
+     */
+    public function makeAdmin ()
+    {
+        $this->admin = true;
+        $update = $this->pdo->prepare(
+            "UPDATE whack.Account 
+             SET admin = 1
+             WHERE id = :id"
+        );
+        $update->execute([':id' => $this->id]);
+    }
+
+    /**
      * Verifies if the stored cookie is legit
      *
      * @param string $cookie - the stored cookie, in the format:
