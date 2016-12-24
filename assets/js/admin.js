@@ -12,5 +12,11 @@
             admin: "",
             pwd: ""
         };
+
+        $scope.phraseForm = {
+            phrase: "",
+            origin: "",
+            author: ""
+        };
     }]);
 }();

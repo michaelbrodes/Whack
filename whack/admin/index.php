@@ -79,6 +79,12 @@ if ( !$user->admin )
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <form enctype="multipart/form-data" action="add_phrase.php" method="post">
+                <?php
+                $max_image = Phrase::MAX_IMAGE;
+                echo "<input type='hidden' 
+                             name='MAX_FILE_SIZE' 
+                             value='$max_image'>"
+                ?>
                 <div class="modal-header">
                     <button type="button"
                             class="close"
@@ -94,6 +100,7 @@ if ( !$user->admin )
                         <textarea id="phrase-content"
                                   name="phrase-content"
                                   autocomplete="off"
+                                  ng-model="phraseForm.phrase"
                                   class="form-control">
                         </textarea>
                     </div>
@@ -103,6 +110,7 @@ if ( !$user->admin )
                                class="form-control"
                                id="author"
                                name="author"
+                               ng-model="phraseForm.author"
                         />
                     </div>
                     <div class="form-group">
@@ -113,22 +121,7 @@ if ( !$user->admin )
                                class="form-control"
                                id="origin"
                                name="origin"
-                        />
-                    </div>
-                    <div class="form-group">
-                        <label for="audio">
-                            Audio of it <span class="optional">(optional)</span>
-                        </label>
-                        <?php
-                        $max_audio = Phrase::MAX_AUDIO;
-                        echo "<input type='hidden' 
-                                     name='MAX_FILE_SIZE' 
-                                     value='$max_audio'>"
-                        ?>
-                        <input type="file"
-                               class="form-control"
-                               name="audio"
-                               id="audio"
+                               ng-model="phraseForm.origin"
                         />
                     </div>
                     <div class="form-group">
@@ -144,10 +137,11 @@ if ( !$user->admin )
                 </div>
                 <div class="modal-footer">
                     <?= "<input type='hidden' name='nonce' value='$nonce' />"?>
-                    <!-- TODO: disable on invalid user input -->
                     <input type='submit'
                             class='button btn-submit'
-                            ng-disabled='true'
+                            ng-disabled='phraseForm.phrase === "" ||
+                                         phraseForm.origin === "" ||
+                                         phraseForm.author === ""'
                     />
                 </div>
             </form>
@@ -204,10 +198,9 @@ if ( !$user->admin )
                 </div>
                 <div class="modal-footer">
                     <?= "<input type='hidden' name='nonce' value='$nonce' />"?>
-                    <!-- TODO: disable on invalid user input -->
                     <input type='submit'
                             class='button btn-submit'
-                            ng-disabled='adminForm.pwd === "" && adminForm.admin === ""'
+                            ng-disabled='adminForm.pwd === "" || adminForm.admin === ""'
                     />
                 </div>
             </form>
